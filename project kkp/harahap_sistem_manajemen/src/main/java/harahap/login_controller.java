@@ -17,7 +17,7 @@ public class login_controller {
     @FXML
     private TextField textfield_password;
 
-    public void handle_login(ActionEvent e){
+    public void handle_login(ActionEvent e) throws Exception{
         var url = "jdbc:sqlite:harahap.db";
         var sql = "SELECT * FROM user WHERE username = ? AND nama = ? AND password = ?;";
         
@@ -36,6 +36,8 @@ public class login_controller {
 
             if (rs.next()) {
                 System.out.println("Login successful!");
+                scene_switcher switcher = new scene_switcher();
+                switcher.switch_to_jadwal_mengajar(e);
             } else {
                 System.out.println("Invalid credentials.");
             }
@@ -43,5 +45,6 @@ public class login_controller {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+        
     }
 }

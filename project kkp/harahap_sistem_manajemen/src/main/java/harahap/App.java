@@ -39,6 +39,7 @@ public class App extends Application {
     public void initialize(URL arg0, ResourceBundle arg1) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'initialize'");
+        
     }
 
 }
