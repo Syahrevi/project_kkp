@@ -1,35 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
    <children>
-      <VBox layoutX="14.0" layoutY="14.0" prefHeight="224.0" prefWidth="132.0">
+      <VBox layoutX="14.0" layoutY="42.0" prefHeight="206.0" prefWidth="132.0">
          <children>
-            <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="132.0" text="JADWAL MENGAJAR" />
-            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="INPUT JADWAL" />
-            <Button mnemonicParsing="false" prefHeight="0.0" prefWidth="132.0" text="INPUT DATA" />
-         </children>
-      </VBox>
-      <TableView fx:id="table_jadwal_mengajar" layoutX="160.0" layoutY="14.0" prefHeight="720.0" prefWidth="480.0">
-        <columns>
-          <TableColumn fx:id="col_id_jadwal" prefWidth="75.0" text="ID jadwal" />
-            <TableColumn fx:id="col_id_pelatih" prefWidth="70.0" text="Pelatih" />
-            <TableColumn fx:id="col_id_siswa" prefWidth="75.0" text="Siswa" />
-          <TableColumn fx:id="col_tanggal_waktu_awal" prefWidth="93.0" text="Waktu Mulai" />
-            <TableColumn fx:id="col_tanggal_waktu_akhir" prefWidth="89.6666259765625" text="Waktu Selesai" />
-            <TableColumn fx:id="col_kehadiran" onEditStart="#edit_kehadiran" prefWidth="74.33331298828125" text="Kehadiran" />
-        </columns>
-      </TableView>
-      <VBox layoutX="14.0" layoutY="260.0" prefHeight="206.0" prefWidth="132.0">
-         <children>
+            <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
             <Button mnemonicParsing="false" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
             <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="LAPORAN ABSENSI" />
          </children>
       </VBox>
+      <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">
+         <children>
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="INPUT JADWAL" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="INPUT TIM SISWA" />
+         </children>
+      </VBox>
+      <TableView fx:id="table_jadwal_mengajar" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="679.0">
+        <columns>
+          <TableColumn fx:id="col_id_jadwal" prefWidth="79.0" text="ID jadwal" />
+            <TableColumn fx:id="col_nama_pelatih" prefWidth="114.0" text="Nama Pelatih" />
+            <TableColumn fx:id="col_nama_siswa" prefWidth="104.0" text="Nama Siswa" />
+          <TableColumn fx:id="col_tanggal_waktu_awal" prefWidth="145.0" text="Waktu Mulai" />
+            <TableColumn fx:id="col_tanggal_waktu_akhir" prefWidth="159.0" text="Waktu Selesai" />
+            <TableColumn fx:id="col_kehadiran" onEditStart="#edit_kehadiran" prefWidth="77.0" text="Kehadiran" />
+        </columns>
+      </TableView>
+      <TitledPane animated="false" layoutX="839.0" layoutY="14.0" prefHeight="317.0" prefWidth="409.0" text="Input Jadwal">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="315.0" prefWidth="407.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="19.0" prefWidth="79.0" text="Nama Pelatih" />
+                  <ComboBox fx:id="combobox_input_nama_pelatih" layoutX="14.0" layoutY="33.0" prefHeight="25.0" prefWidth="350.0" />
+                  <TextField fx:id="textfield_input_nama_pelatih" layoutX="14.0" layoutY="33.0" prefWidth="350.0" promptText="Ketik nama atau keahlian..." />
+                  <Label layoutX="14.0" layoutY="64.0" prefHeight="17.0" prefWidth="71.0" text="Nama Siswa" />
+                  <ComboBox fx:id="combobox_input_nama_siswa" layoutX="14.0" layoutY="81.0" prefHeight="25.0" prefWidth="350.0" />
+                  <TextField fx:id="textfield_input_nama_siswa" layoutX="14.0" layoutY="81.0" prefWidth="350.0" promptText="Ketik nama atau tim..." />
+                  
+                  <Label layoutX="14.0" layoutY="131.0" text="Waktu Mulai" />
+                  <HBox layoutX="14.0" layoutY="148.0" prefHeight="30.0" prefWidth="350.0" spacing="5.0">
+                     <children>
+                        <DatePicker fx:id="datepicker_input_waktu_mulai" prefHeight="25.0" prefWidth="150.0" />
+                        <Spinner fx:id="spinner_start_hour" prefHeight="25.0" prefWidth="64.0" />
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="10.0" text=":" />
+                        <Spinner fx:id="spinner_start_minute" prefHeight="25.0" prefWidth="64.0" />
+                     </children>
+                  </HBox>
+                  
+                  <Label layoutX="14.0" layoutY="187.0" text="Waktu Selesai" />
+                  <HBox layoutX="14.0" layoutY="204.0" prefHeight="30.0" prefWidth="350.0" spacing="5.0">
+                     <children>
+                        <DatePicker fx:id="datepicker_input_waktu_selesai" prefHeight="25.0" prefWidth="150.0" />
+                        <Spinner fx:id="spinner_end_hour" prefHeight="25.0" prefWidth="64.0" />
+                        <Label alignment="CENTER" prefHeight="25.0" prefWidth="10.0" text=":" />
+                        <Spinner fx:id="spinner_end_minute" prefHeight="25.0" prefWidth="64.0" />
+                     </children>
+                  </HBox>
+                  
+                  <Button fx:id="button_input_submit" layoutX="14.0" layoutY="241.0" mnemonicParsing="false" onAction="#submitJadwalForm" text="SUBMIT" />
+                  <Button fx:id="button_input_reset" layoutX="81.0" layoutY="241.0" mnemonicParsing="false" onAction="#resetJadwalForm" text="RESET" />
+                  <Label layoutX="175.0" layoutY="131.0" text="Jam" />
+                  <Label layoutX="268.0" layoutY="131.0" text="Menit" />
+                  <Label layoutX="268.0" layoutY="187.0" text="Menit" />
+                  <Label layoutX="177.0" layoutY="190.0" text="Jam" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
    </children>
 </AnchorPane>
