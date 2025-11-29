@@ -38,18 +38,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.login_controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.login_controller">
   <children>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="662.0" prefWidth="590.0" VBox.vgrow="ALWAYS">
       <children>
-            <Label layoutX="246.0" layoutY="124.0" text="Username" />
-            <TextField fx:id="textfield_username" layoutX="244.0" layoutY="141.0" />
-            <Label layoutX="246.0" layoutY="166.0" text="Name" />
-            <TextField fx:id="textfield_nama" layoutX="246.0" layoutY="183.0" />
-            <Label layoutX="248.0" layoutY="208.0" text="Password" />
-            <TextField fx:id="textfield_password" layoutX="246.0" layoutY="225.0" />
-            <Button fx:id="button_login" layoutX="247.0" layoutY="263.0" mnemonicParsing="false" onAction="#handle_login" text="Sign In" />
-            <Label fx:id="label_status" alignment="CENTER" layoutX="244.0" layoutY="62.0" prefHeight="25.0" prefWidth="149.0" text="STATUS" />
+            <Label alignment="CENTER" layoutX="608.0" layoutY="156.0" prefHeight="0.0" prefWidth="64.0" text="Username" />
+            <TextField fx:id="textfield_username" layoutX="565.0" layoutY="173.0" prefHeight="25.0" prefWidth="149.0" />
+            <Label alignment="CENTER" layoutX="609.0" layoutY="198.0" prefHeight="17.0" prefWidth="64.0" text="Name" />
+            <TextField fx:id="textfield_nama" layoutX="565.0" layoutY="215.0" prefHeight="25.0" prefWidth="149.0" />
+            <Label layoutX="615.0" layoutY="240.0" text="Password" />
+            <TextField fx:id="textfield_password" layoutX="565.0" layoutY="262.0" prefHeight="25.0" prefWidth="149.0" />
+            <Button fx:id="button_login" layoutX="608.0" layoutY="287.0" mnemonicParsing="false" onAction="#handle_login" prefHeight="25.0" prefWidth="64.0" text="Sign In" />
+            <Label fx:id="label_status" alignment="CENTER" layoutX="565.0" layoutY="36.0" prefHeight="25.0" prefWidth="149.0" text="STATUS" />
       </children>
     </AnchorPane>
   </children>

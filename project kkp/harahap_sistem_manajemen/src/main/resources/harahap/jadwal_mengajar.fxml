@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
    <children>
       <VBox layoutX="14.0" layoutY="14.0" prefHeight="224.0" prefWidth="132.0">
          <children>
@@ -15,12 +15,14 @@
             <Button mnemonicParsing="false" prefHeight="0.0" prefWidth="132.0" text="INPUT DATA" />
          </children>
       </VBox>
-      <TableView fx:id="table_jadwal_mengajar" layoutX="160.0" layoutY="14.0" onSort="#readDataJadwalMengajar" prefHeight="452.0" prefWidth="544.0">
+      <TableView fx:id="table_jadwal_mengajar" layoutX="160.0" layoutY="14.0" prefHeight="720.0" prefWidth="480.0">
         <columns>
           <TableColumn fx:id="col_id_jadwal" prefWidth="75.0" text="ID jadwal" />
-          <TableColumn fx:id="col_tanggal_waktu" prefWidth="93.0" text="tanggal waktu" />
-            <TableColumn fx:id="col_id_tim" prefWidth="75.0" text="ID tim" />
-            <TableColumn fx:id="col_id_pelatih" prefWidth="70.0" text="ID pelatih" />
+            <TableColumn fx:id="col_id_pelatih" prefWidth="70.0" text="Pelatih" />
+            <TableColumn fx:id="col_id_siswa" prefWidth="75.0" text="Siswa" />
+          <TableColumn fx:id="col_tanggal_waktu_awal" prefWidth="93.0" text="Waktu Mulai" />
+            <TableColumn fx:id="col_tanggal_waktu_akhir" prefWidth="89.6666259765625" text="Waktu Selesai" />
+            <TableColumn fx:id="col_kehadiran" onEditStart="#edit_kehadiran" prefWidth="74.33331298828125" text="Kehadiran" />
         </columns>
       </TableView>
       <VBox layoutX="14.0" layoutY="260.0" prefHeight="206.0" prefWidth="132.0">
