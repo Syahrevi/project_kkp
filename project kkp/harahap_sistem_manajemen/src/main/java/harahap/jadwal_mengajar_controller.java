@@ -1,4 +1,5 @@
 package harahap;
+import harahap.scene_switcher;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,53 +22,56 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
+
 public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
-    @FXML
-    private Button button_jadwal_mengajar;
-    @FXML
-    private TableView<jadwal_mengajar> table_jadwal_mengajar;
-    @FXML
-    private TableColumn<jadwal_mengajar, Integer> col_id_jadwal;
-    @FXML
-    private TableColumn<jadwal_mengajar, Integer> col_nama_siswa;
-    @FXML
-    private TableColumn<jadwal_mengajar, Integer> col_nama_pelatih;
-    @FXML
-    private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_awal;
-    @FXML
-    private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_akhir;
-    @FXML
-    private TableColumn<jadwal_mengajar, String> col_kehadiran;
-    @FXML
-    private DatePicker datepicker_input_waktu_mulai;
-    @FXML
-    private DatePicker datepicker_input_waktu_selesai;
-    @FXML
-    private Spinner<Integer> spinner_start_hour;
-    @FXML
-    private Spinner<Integer> spinner_start_minute;
-    @FXML
-    private Spinner<Integer> spinner_end_hour;
-    @FXML
-    private Spinner<Integer> spinner_end_minute;
-    @FXML
-    private ComboBox<String> combobox_input_nama_pelatih;
-    @FXML
-    private ComboBox<String> combobox_input_nama_siswa;
-    @FXML
-    private TextField textfield_input_nama_pelatih;
-    @FXML
-    private TextField textfield_input_nama_siswa;
+
+    @FXML private Button button_jadwal_mengajar;
+    @FXML private Button button_crud_pelatih;
+    @FXML private Button button_crud_siswa;
+    @FXML private Button button_crud_tim_siswa;
+    
+    @FXML private TableView<jadwal_mengajar> table_jadwal_mengajar;
+    @FXML private TableColumn<jadwal_mengajar, Integer> col_id_jadwal;
+    @FXML private TableColumn<jadwal_mengajar, Integer> col_nama_siswa;
+    @FXML private TableColumn<jadwal_mengajar, Integer> col_nama_pelatih;
+    @FXML private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_awal;
+    @FXML private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_akhir;
+    @FXML private TableColumn<jadwal_mengajar, String> col_kehadiran;
+    @FXML private DatePicker datepicker_input_waktu_mulai;
+    @FXML private DatePicker datepicker_input_waktu_selesai;
+    @FXML private Spinner<Integer> spinner_start_hour;
+    @FXML private Spinner<Integer> spinner_start_minute;
+    @FXML private Spinner<Integer> spinner_end_hour;
+    @FXML private Spinner<Integer> spinner_end_minute;
+    @FXML private ComboBox<String> combobox_input_nama_pelatih;
+    @FXML private ComboBox<String> combobox_input_nama_siswa;
+    @FXML private TextField textfield_input_nama_pelatih;
+    @FXML private TextField textfield_input_nama_siswa;
     ObservableList<jadwal_mengajar> data = FXCollections.observableArrayList();
     ObservableList<PelatihData> pelatihDataList = FXCollections.observableArrayList();
     ObservableList<SiswaData> siswaDataList = FXCollections.observableArrayList();
     private static final String DB_URL = "jdbc:sqlite:harahap.db";
 
-    public void switch_to_jadwal_mengajar() throws Exception{
-        App.setRoot("jadwal_mengajar");
+    public void switch_to_jadwal_mengajar(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_jadwal_mengajar(e);
     }
+    public void switch_to_crud_pelatih(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_crud_pelatih(e);
+    }
+    public void switch_to_crud_siswa(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_crud_siswa(e);
+    }
+    public void switch_to_crud_tim_siswa(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_crud_tim_siswa(e);
+    }
+
     public void edit_kehadiran(){
     }
 

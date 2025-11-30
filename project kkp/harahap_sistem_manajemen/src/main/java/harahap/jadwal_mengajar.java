@@ -65,7 +65,7 @@ public class jadwal_mengajar {
         kehadiran.set(value);
     }
     
-
+    //property
     public IntegerProperty Id_jadwalProperty(){
         return id_jadwal;
     }
