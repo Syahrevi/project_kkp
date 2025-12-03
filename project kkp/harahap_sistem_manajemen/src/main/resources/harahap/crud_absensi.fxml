@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox layoutX="24.0" layoutY="52.0" prefHeight="206.0" prefWidth="132.0">
+         <children>
+            <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
+            <Button mnemonicParsing="false" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="LAPORAN ABSENSI" />
+         </children>
+      </VBox>
+      <VBox layoutX="24.0" layoutY="476.0" prefHeight="267.0" prefWidth="132.0">
+         <children>
+            <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
+            <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
+            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT TIM SISWA" />
+         </children>
+      </VBox>
+      <TableView fx:id="table_kehadiran" layoutX="167.0" layoutY="24.0" prefHeight="772.0" prefWidth="679.0">
+         <columns>
+            <TableColumn fx:id="col_id_kehadiran" text="ID Kehadiran" />
+            <TableColumn fx:id="col_tanggal" prefWidth="116.0" text="Tanggal" />
+            <TableColumn fx:id="col_nama_pelatih" prefWidth="105.0" text="Nama Pelatih" />
+            <TableColumn fx:id="col_waktu_masuk" prefWidth="105.0" text="Waktu Masuk" />
+            <TableColumn fx:id="col_waktu_keluar" prefWidth="97.0" text="Waktu Keluar" />
+            <TableColumn prefWidth="75.0" text="Total Jam" />
+         </columns>
+      </TableView>
+      <TitledPane animated="false" layoutX="846.0" layoutY="24.0" prefHeight="206.0" prefWidth="421.0" text="Absen Masuk">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="342.0" prefWidth="419.0">
+               <children>
+                  <DatePicker layoutX="7.0" layoutY="33.0" prefHeight="25.0" prefWidth="161.0" />
+                  <Spinner layoutX="169.0" layoutY="33.0" prefHeight="25.0" prefWidth="70.0" />
+                  <Spinner layoutX="240.0" layoutY="33.0" prefHeight="25.0" prefWidth="70.0" />
+                  <Label layoutX="240.0" layoutY="14.0" text="Menit" />
+                  <Label layoutX="7.0" layoutY="14.0" text="Tanggal" />
+                  <Button layoutX="7.0" layoutY="59.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="161.0" text="Tanggal Dan Jam Sekarang" />
+                  <Label layoutX="169.0" layoutY="14.0" text="Jam" />
+                  <ComboBox layoutX="7.0" layoutY="110.0" prefHeight="25.0" prefWidth="161.0" />
+                  <Label layoutX="7.0" layoutY="93.0" text="Nama Pelatih" />
+                  <Button layoutX="7.0" layoutY="148.0" mnemonicParsing="false" text="Submit" />
+                  <Button layoutX="68.0" layoutY="148.0" mnemonicParsing="false" text="Reset" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+      <TitledPane animated="false" layoutX="846.0" layoutY="230.0" prefHeight="206.0" prefWidth="421.0" text="Absen Keluar">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="342.0" prefWidth="419.0">
+               <children>
+                  <DatePicker layoutX="7.0" layoutY="33.0" prefHeight="25.0" prefWidth="161.0" />
+                  <Spinner layoutX="167.0" layoutY="33.0" prefHeight="25.0" prefWidth="70.0" />
+                  <Spinner layoutX="237.0" layoutY="33.0" prefHeight="25.0" prefWidth="70.0" />
+                  <Label layoutX="237.0" layoutY="14.0" text="Menit" />
+                  <Label layoutX="7.0" layoutY="14.0" text="Tanggal" />
+                  <Button layoutX="7.0" layoutY="59.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="161.0" text="Tanggal Dan Jam Sekarang" />
+                  <Label layoutX="168.0" layoutY="14.0" text="Jam" />
+                  <ComboBox layoutX="7.0" layoutY="110.0" prefHeight="25.0" prefWidth="161.0" />
+                  <Label layoutX="7.0" layoutY="93.0" text="Nama Pelatih" />
+                  <Button layoutX="7.0" layoutY="148.0" mnemonicParsing="false" text="Submit" />
+                  <Button layoutX="68.0" layoutY="148.0" mnemonicParsing="false" text="Reset" />
+               </children>
+            </AnchorPane>
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" layoutX="846.0" layoutY="436.0" prefHeight="151.0" prefWidth="421.0" text="Setting">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="267.0">
+               <children>
+                  <DatePicker layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="161.0" />
+                  <Label layoutX="14.0" layoutY="14.0" text="Tampilkan Daftar Absensi di Tanggal:" />
+                  <Button layoutX="14.0" layoutY="56.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="161.0" text="Tanggal Sekarang" />
+                  <Button layoutX="14.0" layoutY="82.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="161.0" text="Reset" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+   </children>
+</AnchorPane>
