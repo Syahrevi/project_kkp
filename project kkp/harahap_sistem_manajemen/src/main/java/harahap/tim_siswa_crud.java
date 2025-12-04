@@ -38,7 +38,7 @@ public class tim_siswa_crud {
         kategori_tim.set(value);
     }
     
-    // property accessors — MUST be lowercase start to match PropertyValueFactory("id_tim")
+    // property accessors
     public IntegerProperty id_timProperty(){
         return id_tim;
     }

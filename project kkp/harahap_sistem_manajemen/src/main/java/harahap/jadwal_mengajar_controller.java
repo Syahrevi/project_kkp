@@ -32,6 +32,7 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
     @FXML private Button button_crud_pelatih;
     @FXML private Button button_crud_siswa;
     @FXML private Button button_crud_tim_siswa;
+    @FXML private Button button_crud_absensi;
     
     @FXML private TableView<jadwal_mengajar> table_jadwal_mengajar;
     @FXML private TableColumn<jadwal_mengajar, Integer> col_id_jadwal;
@@ -70,6 +71,10 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
     public void switch_to_crud_tim_siswa(ActionEvent e) throws Exception{
         scene_switcher switcher = new scene_switcher();
         switcher.switch_to_crud_tim_siswa(e);
+    }
+    public void switch_to_crud_absensi(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_crud_absensi(e);
     }
 
     public void edit_kehadiran(){

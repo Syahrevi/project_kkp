@@ -12,11 +12,12 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.tim_siswa_crud_controller">
    <children>
-      <VBox layoutX="14.0" layoutY="42.0" prefHeight="206.0" prefWidth="132.0">
+      <VBox layoutX="14.0" layoutY="39.0" prefHeight="206.0" prefWidth="132.0">
          <children>
-            <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
-            <Button mnemonicParsing="false" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="LAPORAN ABSENSI" />
+            <Button fx:id="button_jadwal_mengajar1" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
+            <Button fx:id="button_laporan_gaji" mnemonicParsing="false" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
+            <Button fx:id="button_laporan_absensi" mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="LAPORAN ABSENSI" />
+            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
          </children>
       </VBox>
       <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">

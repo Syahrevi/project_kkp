@@ -25,6 +25,7 @@ public class pelatih_crud_controller implements Initializable {
     @FXML private Button button_crud_pelatih;
     @FXML private Button button_crud_siswa;
     @FXML private Button button_crud_tim_siswa;
+    @FXML private Button button_crud_absensi;
 
     @FXML private TableView<pelatih_crud> table_pelatih;
     @FXML private TableColumn<pelatih_crud, Integer> col_id_pelatih;
@@ -57,6 +58,10 @@ public class pelatih_crud_controller implements Initializable {
     public void switch_to_crud_tim_siswa(ActionEvent e) throws Exception{
         scene_switcher switcher = new scene_switcher();
         switcher.switch_to_crud_tim_siswa(e);
+    }
+     public void switch_to_crud_absensi(ActionEvent e) throws Exception{
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_crud_absensi(e);
     }
     private void readDataPelatih(ActionEvent e){
         col_id_pelatih.setCellValueFactory(new PropertyValueFactory<>("id_pelatih"));
