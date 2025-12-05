@@ -9,33 +9,38 @@ public class jadwal_mengajar {
     private IntegerProperty id_jadwal;
     private StringProperty nama_pelatih;
     private StringProperty nama_siswa;
-    private StringProperty tanggal_waktu_awal;
-    private StringProperty tanggal_waktu_akhir;
+    private StringProperty tanggal;
+    private StringProperty waktu_mulai;
+    private StringProperty waktu_selesai;
     private StringProperty kehadiran;
 
-    public jadwal_mengajar(Integer id_jadwal, String nama_pelatih,  String nama_siswa, String tanggal_waktu_awal, String tanggal_waktu_akhir, String kehadiran){
+    public jadwal_mengajar(Integer id_jadwal, String nama_pelatih,  String nama_siswa, String tanggal, String waktu_mulai, String waktu_selesai, String kehadiran){
         this.id_jadwal = new SimpleIntegerProperty(id_jadwal);
         this.nama_pelatih = new SimpleStringProperty(nama_pelatih);
         this.nama_siswa = new SimpleStringProperty(nama_siswa);
-        this.tanggal_waktu_awal = new SimpleStringProperty(tanggal_waktu_awal);
-        this.tanggal_waktu_akhir = new SimpleStringProperty(tanggal_waktu_akhir);
+        this.tanggal = new SimpleStringProperty(tanggal);
+        this.waktu_mulai = new SimpleStringProperty(waktu_mulai);
+        this.waktu_selesai = new SimpleStringProperty(waktu_selesai);
         this.kehadiran = new SimpleStringProperty(kehadiran);
     }
     //getter
     public String getId_jadwal(){
         return id_jadwal.get()+"";
     }
-    public String getnama_pelatih(){
+    public String getNama_pelatih(){
         return nama_pelatih.get()+"";
     }
-    public String getnama_siswa(){
+    public String getNama_siswa(){
         return nama_siswa.get()+"";
     }
-    public String getTanggal_waktu_awal(){
-        return tanggal_waktu_awal.get()+"";
+    public String getTanggal(){
+        return tanggal.get()+"";
     }
-    public String getTanggal_waktu_akhir(){
-        return tanggal_waktu_akhir.get()+"";
+    public String getWaktu_mulai(){
+        return waktu_mulai.get()+"";
+    }
+    public String getWaktu_selesai(){
+        return waktu_selesai.get()+"";
     }
     public String getKehadiran(){
         return kehadiran.get();
@@ -47,26 +52,29 @@ public class jadwal_mengajar {
     public void setId_jadwal(Integer value){
         id_jadwal.set(value);
     }
-    public void setnama_pelatih(String value){
+    public void setNama_pelatih(String value){
         nama_pelatih.set(value);
     }
     
-    public void setnama_siswa(String value){
+    public void setNama_siswa(String value){
         nama_siswa.set(value);
     }
     
-    public void setTanggal_waktu_awal(String value){
-        tanggal_waktu_awal.set(value);
+    public void setTanggal(String value){
+        tanggal.set(value);
     }
-    public void setTanggal_waktu_akhir(String value){
-        tanggal_waktu_akhir.set(value);
+    public void setWaktu_mulai(String value){
+        waktu_mulai.set(value);
+    }
+    public void setWaktu_selesai(String value){
+        waktu_selesai.set(value);
     }
     public void setKehadiran(String value){
         kehadiran.set(value);
     }
     
     //property
-    public IntegerProperty Id_jadwalProperty(){
+    public IntegerProperty id_jadwalProperty(){
         return id_jadwal;
     }
     public StringProperty nama_pelatihProperty(){
@@ -75,11 +83,14 @@ public class jadwal_mengajar {
     public StringProperty nama_siswaProperty(){
         return nama_siswa;
     }
-    public StringProperty Tanggal_waktu_awalProperty(){
-        return tanggal_waktu_awal;
+    public StringProperty tanggalProperty(){
+        return tanggal;
     }
-    public StringProperty Tanggal_waktu_akhirProperty(){
-        return tanggal_waktu_akhir;
+    public StringProperty waktu_mulaiProperty(){
+        return waktu_mulai;
+    }
+    public StringProperty waktu_selesaiProperty(){
+        return waktu_selesai;
     }
     public StringProperty KehadiranProperty(){
         return kehadiran;

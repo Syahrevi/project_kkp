@@ -8,6 +8,10 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,10 +26,20 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class crud_absensi_controller implements Initializable
 {
-@FXML private Button button_jadwal_mengajar;
+    @FXML private Button button_jadwal_mengajar;
     @FXML private Button button_crud_pelatih;
     @FXML private Button button_crud_siswa;
     @FXML private Button button_crud_tim_siswa;
@@ -60,9 +74,13 @@ public class crud_absensi_controller implements Initializable
 
     //setting
     @FXML DatePicker datepicker_sort_daftar_absensi_setting;
+    @FXML DatePicker datepicker_dari_tanggal_setting;
+    @FXML DatePicker datepicker_sampai_tanggal_setting;
     @FXML Button button_tanggal_sekarang_setting;
     @FXML Button button_reset_setting;
-    @FXML Button button_confirm_sort_setting;
+    @FXML Button button_setting_print_laporan;
+
+    @FXML Button button_show_all;
 
     public void switch_to_jadwal_mengajar(ActionEvent e) throws Exception{
         scene_switcher switcher = new scene_switcher();
@@ -96,7 +114,7 @@ public class crud_absensi_controller implements Initializable
         data.clear();
         String DB_URL = "jdbc:sqlite:harahap.db";
         try (Connection conn = DriverManager.getConnection(DB_URL);
-            ResultSet rs = conn.createStatement().executeQuery("SELECT jk.id_kehadiran, p.nama_pelatih, jk.waktu_masuk, jk.waktu_keluar, jk.tanggal, jk.total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih")) {
+            ResultSet rs = conn.createStatement().executeQuery("SELECT jk.id_kehadiran, p.nama_pelatih, jk.waktu_masuk, jk.waktu_keluar, jk.tanggal, jk.total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih WHERE tanggal = date()")) {
             while (rs.next()) {
                 data.add(new crud_absensi(
                     rs.getInt(1),
@@ -426,7 +444,7 @@ public class crud_absensi_controller implements Initializable
     
     public void resetKeluar(ActionEvent e){
         datepicker_tanggal_keluar.setValue(null);
-        spinner_jam_keluar.getValueFactory().setValue("17");
+        spinner_jam_keluar.getValueFactory().setValue("00");
         spinner_menit_keluar.getValueFactory().setValue("00");
         combobox_nama_pelatih_keluar.setValue(null);
         System.out.println("Form keluar direset!");
@@ -474,6 +492,222 @@ public class crud_absensi_controller implements Initializable
         readDataAbsensi(e);
         System.out.println("Setting direset! Menampilkan semua data absensi.");
     }
+    public void showAllDataSetting(ActionEvent e){
+        col_id_kehadiran.setCellValueFactory(new PropertyValueFactory<>("id_kehadiran"));
+        col_tanggal.setCellValueFactory(new PropertyValueFactory<>("tanggal"));
+        col_nama_pelatih.setCellValueFactory(new PropertyValueFactory<>("nama_pelatih"));
+        col_waktu_masuk.setCellValueFactory(new PropertyValueFactory<>("waktu_masuk"));
+        col_waktu_keluar.setCellValueFactory(new PropertyValueFactory<>("waktu_keluar"));
+        col_total_jam.setCellValueFactory(new PropertyValueFactory<>("total_jam"));
+
+        data.clear();
+        String DB_URL = "jdbc:sqlite:harahap.db";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            ResultSet rs = conn.createStatement().executeQuery("SELECT jk.id_kehadiran, p.nama_pelatih, jk.waktu_masuk, jk.waktu_keluar, jk.tanggal, jk.total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih")) {
+            while (rs.next()) {
+                data.add(new crud_absensi(
+                    rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
+                    rs.getString(5),
+                    rs.getInt(6) 
+                ));
+            }
+        } catch (Exception er) {
+            er.printStackTrace();
+        }
+        table_kehadiran.setItems(data);
+
+        
+    }
+    
+    public void readDataAbsensiByDateRange(ActionEvent e){
+        if (datepicker_dari_tanggal_setting.getValue() == null) {
+            System.err.println("Error: Pilih tanggal dari!");
+            return;
+        }
+        if (datepicker_sampai_tanggal_setting.getValue() == null) {
+            System.err.println("Error: Pilih tanggal sampai!");
+            return;
+        }
+        
+        col_id_kehadiran.setCellValueFactory(new PropertyValueFactory<>("id_kehadiran"));
+        col_tanggal.setCellValueFactory(new PropertyValueFactory<>("tanggal"));
+        col_nama_pelatih.setCellValueFactory(new PropertyValueFactory<>("nama_pelatih"));
+        col_waktu_masuk.setCellValueFactory(new PropertyValueFactory<>("waktu_masuk"));
+        col_waktu_keluar.setCellValueFactory(new PropertyValueFactory<>("waktu_keluar"));
+        col_total_jam.setCellValueFactory(new PropertyValueFactory<>("total_jam"));
+
+        data.clear();
+        String DB_URL = "jdbc:sqlite:harahap.db";
+        String dari_tanggal = datepicker_dari_tanggal_setting.getValue().toString();
+        String sampai_tanggal = datepicker_sampai_tanggal_setting.getValue().toString();
+        
+        // Query to sum total_jam grouped by pelatih within the date range
+        String query = "SELECT 0 as id_kehadiran, p.nama_pelatih, '' as waktu_masuk, '' as waktu_keluar, '' as tanggal, SUM(jk.total_jam) as total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih WHERE jk.tanggal BETWEEN ? AND ? GROUP BY p.nama_pelatih";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, dari_tanggal);
+            pstmt.setString(2, sampai_tanggal);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                data.add(new crud_absensi(
+                    rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
+                    rs.getString(5),
+                    rs.getInt(6) 
+                ));
+            }
+            System.out.println("Loaded " + data.size() + " pelatih records for date range: " + dari_tanggal + " to " + sampai_tanggal);
+        } catch (Exception er) {
+            er.printStackTrace();
+        }
+        table_kehadiran.setItems(data);
+    }
+    
+    public void printLaporanExcel(ActionEvent e){
+        if (datepicker_dari_tanggal_setting.getValue() == null) {
+            System.err.println("Error: Pilih tanggal dari!");
+            return;
+        }
+        if (datepicker_sampai_tanggal_setting.getValue() == null) {
+            System.err.println("Error: Pilih tanggal sampai!");
+            return;
+        }
+        
+        String DB_URL = "jdbc:sqlite:harahap.db";
+        String dari_tanggal = datepicker_dari_tanggal_setting.getValue().toString();
+        String sampai_tanggal = datepicker_sampai_tanggal_setting.getValue().toString();
+        
+        // File chooser dialog
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Report");
+        fileChooser.setInitialFileName("Laporan_Absensi_" + dari_tanggal + "_to_" + sampai_tanggal);
+        
+        // Add file extension filters
+        FileChooser.ExtensionFilter excelFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", "*.xlsx");
+        FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv");
+        FileChooser.ExtensionFilter allFilesFilter = new FileChooser.ExtensionFilter("All Files (*.*)", "*.*");
+        
+        fileChooser.getExtensionFilters().addAll(excelFilter, csvFilter, allFilesFilter);
+        fileChooser.setSelectedExtensionFilter(excelFilter);
+        
+        Stage stage = (Stage) button_setting_print_laporan.getScene().getWindow();
+        File selectedFile = fileChooser.showSaveDialog(stage);
+        
+        if (selectedFile == null) {
+            System.out.println("Save cancelled");
+            return;
+        }
+        
+        String filePath = selectedFile.getAbsolutePath();
+        
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Laporan Absensi");
+            
+            // Create header style
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            
+            // Title
+            Row titleRow = sheet.createRow(0);
+            Cell titleCell = titleRow.createCell(0);
+            titleCell.setCellValue("LAPORAN ABSENSI PELATIH");
+            titleCell.setCellStyle(headerStyle);
+            sheet.autoSizeColumn(0);
+            
+            // Date range
+            Row dateRow = sheet.createRow(1);
+            dateRow.createCell(0).setCellValue("Periode: " + dari_tanggal + " s/d " + sampai_tanggal);
+            
+            // Header row for details
+            Row headerRow = sheet.createRow(3);
+            String[] headers = {"ID Kehadiran", "Nama Pelatih", "Waktu Masuk", "Waktu Keluar", "Tanggal", "Total Jam"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Fetch and populate detail data
+            String detailQuery = "SELECT jk.id_kehadiran, p.nama_pelatih, jk.waktu_masuk, jk.waktu_keluar, jk.tanggal, jk.total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih WHERE jk.tanggal BETWEEN ? AND ? ORDER BY jk.tanggal, p.nama_pelatih";
+            int rowNum = 4;
+            try (Connection conn = DriverManager.getConnection(DB_URL);
+                 PreparedStatement pstmt = conn.prepareStatement(detailQuery)) {
+                pstmt.setString(1, dari_tanggal);
+                pstmt.setString(2, sampai_tanggal);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(rs.getInt("id_kehadiran"));
+                    row.createCell(1).setCellValue(rs.getString("nama_pelatih"));
+                    row.createCell(2).setCellValue(rs.getString("waktu_masuk"));
+                    row.createCell(3).setCellValue(rs.getString("waktu_keluar"));
+                    row.createCell(4).setCellValue(rs.getString("tanggal"));
+                    row.createCell(5).setCellValue(rs.getInt("total_jam"));
+                }
+            } catch (Exception er) {
+                er.printStackTrace();
+                return;
+            }
+            
+            // Summary section
+            rowNum += 2;
+            Row summaryHeaderRow = sheet.createRow(rowNum);
+            Cell summaryHeaderCell = summaryHeaderRow.createCell(0);
+            summaryHeaderCell.setCellValue("RINGKASAN JAM KERJA PER PELATIH");
+            summaryHeaderCell.setCellStyle(headerStyle);
+            rowNum++;
+            
+            // Summary table header
+            Row summaryTableHeaderRow = sheet.createRow(rowNum);
+            summaryTableHeaderRow.createCell(0).setCellValue("Nama Pelatih");
+            summaryTableHeaderRow.createCell(1).setCellValue("Total Jam");
+            CellStyle summaryHeaderStyle = workbook.createCellStyle();
+            Font summaryFont = workbook.createFont();
+            summaryFont.setBold(true);
+            summaryHeaderStyle.setFont(summaryFont);
+            summaryTableHeaderRow.getCell(0).setCellStyle(summaryHeaderStyle);
+            summaryTableHeaderRow.getCell(1).setCellStyle(summaryHeaderStyle);
+            sheet.autoSizeColumn(0);
+            sheet.autoSizeColumn(1);
+            rowNum++;
+            
+            // Fetch summary data
+            String summaryQuery = "SELECT p.nama_pelatih, SUM(jk.total_jam) as total_jam FROM jumlah_kehadiran jk JOIN pelatih p ON jk.id_pelatih = p.id_pelatih WHERE jk.tanggal BETWEEN ? AND ? GROUP BY p.nama_pelatih ORDER BY p.nama_pelatih";
+            try (Connection conn = DriverManager.getConnection(DB_URL);
+                 PreparedStatement pstmt = conn.prepareStatement(summaryQuery)) {
+                pstmt.setString(1, dari_tanggal);
+                pstmt.setString(2, sampai_tanggal);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(rs.getString("nama_pelatih"));
+                    row.createCell(1).setCellValue(rs.getInt("total_jam"));
+                }
+            } catch (Exception er) {
+                er.printStackTrace();
+                return;
+            }
+            
+            // Save file
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                System.out.println("Report saved as: " + filePath);
+            }
+        } catch (Exception er) {
+            er.printStackTrace();
+            System.err.println("Error generating report: " + er.getMessage());
+        }
+    }
+
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
@@ -492,7 +726,7 @@ public class crud_absensi_controller implements Initializable
                 setValue(String.format("%02d", val));
             }
         });
-        spinner_jam_masuk.getValueFactory().setValue("08");
+        spinner_jam_masuk.getValueFactory().setValue("00");
         
         spinner_menit_masuk.setValueFactory(new SpinnerValueFactory<String>() {
             @Override
@@ -525,7 +759,7 @@ public class crud_absensi_controller implements Initializable
                 setValue(String.format("%02d", val));
             }
         });
-        spinner_jam_keluar.getValueFactory().setValue("17");
+        spinner_jam_keluar.getValueFactory().setValue("00");
         
         spinner_menit_keluar.setValueFactory(new SpinnerValueFactory<String>() {
             @Override

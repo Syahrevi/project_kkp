@@ -17,7 +17,6 @@
          <children>
             <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
             <Button fx:id="button_laporan_gaji" mnemonicParsing="false" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button fx:id="button_laporan_absensi" mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="LAPORAN ABSENSI" />
             <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
          </children>
       </VBox>
@@ -76,15 +75,20 @@
             </AnchorPane>
          </content>
       </TitledPane>
-      <TitledPane animated="false" layoutX="846.0" layoutY="436.0" prefHeight="184.0" prefWidth="421.0" text="Setting">
+      <TitledPane animated="false" layoutX="846.0" layoutY="436.0" prefHeight="290.0" prefWidth="421.0" text="Setting">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="149.0" prefWidth="419.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="188.0" prefWidth="419.0">
                <children>
-                  <DatePicker fx:id="datepicker_sort_daftar_absensi_setting" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="161.0" />
+                  <DatePicker fx:id="datepicker_sort_daftar_absensi_setting" layoutX="14.0" layoutY="31.0" onAction="#readDataAbsensiByDate" onContextMenuRequested="#readDataAbsensiByDate" onInputMethodTextChanged="#readDataAbsensiByDate" onKeyPressed="#readDataAbsensiByDate" onKeyReleased="#readDataAbsensiByDate" onKeyTyped="#readDataAbsensiByDate" prefHeight="25.0" prefWidth="161.0" />
                   <Label layoutX="14.0" layoutY="14.0" text="Tampilkan Daftar Absensi di Tanggal:" />
                   <Button fx:id="button_tanggal_sekarang_setting" layoutX="14.0" layoutY="56.0" mnemonicParsing="false" onAction="#setTanggalSekarangSetting" prefHeight="25.0" prefWidth="161.0" text="Tanggal Sekarang" />
-                  <Button fx:id="button_reset_setting" layoutX="14.0" layoutY="106.0" mnemonicParsing="false" onAction="#resetSetting" prefHeight="25.0" prefWidth="161.0" text="Reset" />
-                  <Button fx:id="button_confirm_sort_setting" layoutX="14.0" layoutY="81.0" mnemonicParsing="false" onAction="#readDataAbsensiByDate" prefHeight="25.0" prefWidth="161.0" text="Confirm" />
+                  <Button fx:id="button_reset_setting" layoutX="14.0" layoutY="225.0" mnemonicParsing="false" onAction="#resetSetting" prefHeight="25.0" prefWidth="161.0" text="Reset" />
+                  <Button fx:id="button_show_all" layoutX="14.0" layoutY="81.0" mnemonicParsing="false" onAction="#showAllDataSetting" prefHeight="25.0" prefWidth="161.0" text="Show All" />
+                  <DatePicker fx:id="datepicker_dari_tanggal_setting" layoutX="14.0" layoutY="150.0" onAction="#readDataAbsensiByDateRange" onInputMethodTextChanged="#readDataAbsensiByDateRange" onKeyPressed="#readDataAbsensiByDateRange" onKeyReleased="#readDataAbsensiByDateRange" onKeyTyped="#readDataAbsensiByDateRange" />
+                  <Label layoutX="14.0" layoutY="132.0" text="Dari Tanggal" />
+                  <DatePicker fx:id="datepicker_sampai_tanggal_setting" layoutX="238.0" layoutY="150.0" onAction="#readDataAbsensiByDateRange" onInputMethodTextChanged="#readDataAbsensiByDateRange" onKeyPressed="#readDataAbsensiByDateRange" onKeyReleased="#readDataAbsensiByDateRange" onKeyTyped="#readDataAbsensiByDateRange" />
+                  <Label layoutX="238.0" layoutY="132.0" text="Sampai Tanggal" />
+                  <Button fx:id="button_setting_print_laporan" layoutX="238.0" layoutY="225.0" mnemonicParsing="false" onAction="#printLaporanExcel" prefHeight="25.0" prefWidth="174.0" text="Print Laporan" />
                </children>
             </AnchorPane>
         </content>

@@ -36,13 +36,14 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
     
     @FXML private TableView<jadwal_mengajar> table_jadwal_mengajar;
     @FXML private TableColumn<jadwal_mengajar, Integer> col_id_jadwal;
-    @FXML private TableColumn<jadwal_mengajar, Integer> col_nama_siswa;
-    @FXML private TableColumn<jadwal_mengajar, Integer> col_nama_pelatih;
-    @FXML private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_awal;
-    @FXML private TableColumn<jadwal_mengajar, String> col_tanggal_waktu_akhir;
+    @FXML private TableColumn<jadwal_mengajar, String> col_nama_siswa;
+    @FXML private TableColumn<jadwal_mengajar, String> col_nama_pelatih;
+    @FXML private TableColumn<jadwal_mengajar, String> col_tanggal;
+    @FXML private TableColumn<jadwal_mengajar, String> col_waktu_mulai;
+    @FXML private TableColumn<jadwal_mengajar, String> col_waktu_selesai;
     @FXML private TableColumn<jadwal_mengajar, String> col_kehadiran;
-    @FXML private DatePicker datepicker_input_waktu_mulai;
-    @FXML private DatePicker datepicker_input_waktu_selesai;
+
+    @FXML private DatePicker datepicker_input_tanggal;
     @FXML private Spinner<Integer> spinner_start_hour;
     @FXML private Spinner<Integer> spinner_start_minute;
     @FXML private Spinner<Integer> spinner_end_hour;
@@ -85,15 +86,16 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
         col_id_jadwal.setCellValueFactory(new PropertyValueFactory<>("id_jadwal"));
         col_nama_pelatih.setCellValueFactory(new PropertyValueFactory<>("nama_pelatih"));
         col_nama_siswa.setCellValueFactory(new PropertyValueFactory<>("nama_siswa"));
-        col_tanggal_waktu_awal.setCellValueFactory(new PropertyValueFactory<>("tanggal_waktu_awal"));
-        col_tanggal_waktu_akhir.setCellValueFactory(new PropertyValueFactory<>("tanggal_waktu_akhir"));
+        col_tanggal.setCellValueFactory(new PropertyValueFactory<>("tanggal"));
+        col_waktu_mulai.setCellValueFactory(new PropertyValueFactory<>("waktu_mulai"));
+        col_waktu_selesai.setCellValueFactory(new PropertyValueFactory<>("waktu_selesai"));
         col_kehadiran.setCellValueFactory(new PropertyValueFactory<>("kehadiran"));
 
         // load data dari DB
         data.clear();
         String DB_URL = "jdbc:sqlite:harahap.db";
         try (Connection conn = DriverManager.getConnection(DB_URL);
-            ResultSet rs = conn.createStatement().executeQuery("select jadwal.id_jadwal, pelatih.nama_pelatih, siswa.nama_siswa, jadwal.tanggal_waktu_akhir, jadwal.tanggal_waktu_akhir, jadwal.kehadiran from jadwal, pelatih, siswa where jadwal.id_pelatih = pelatih.id_pelatih AND siswa.id_siswa = jadwal.id_siswa")) {
+            ResultSet rs = conn.createStatement().executeQuery("SELECT id_jadwal, nama_pelatih, nama_siswa, tanggal, waktu_mulai, waktu_selesai, kehadiran FROM jadwal, pelatih, siswa WHERE pelatih.id_pelatih = jadwal.id_pelatih AND siswa.id_siswa = jadwal.id_siswa")) {
             while (rs.next()) {
                 data.add(new jadwal_mengajar(
                     rs.getInt(1),
@@ -101,7 +103,8 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
                     rs.getString(3),
                     rs.getString(4),
                     rs.getString(5),
-                    rs.getString(6)
+                    rs.getString(6),
+                    rs.getString(7)
                 ));
             }
         } catch (Exception e) {
@@ -323,7 +326,7 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
                 return;
             }
             
-            if (datepicker_input_waktu_mulai.getValue() == null || datepicker_input_waktu_selesai.getValue() == null) {
+            if (datepicker_input_tanggal.getValue() == null) {
                 System.err.println("Error: Tanggal harus dipilih!");
                 return;
             }
@@ -357,25 +360,25 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
             }
             
             // Build datetime strings
-            String tanggal_mulai = datepicker_input_waktu_mulai.getValue().toString();
+            String tanggal = datepicker_input_tanggal.getValue().toString();
             int jam_mulai = spinner_start_hour.getValue();
             int menit_mulai = spinner_start_minute.getValue();
-            String tanggal_waktu_awal = tanggal_mulai + " " + String.format("%02d:%02d:00", jam_mulai, menit_mulai);
+            String waktu_mulai =String.format("%02d:%02d:00", jam_mulai, menit_mulai);
             
-            String tanggal_selesai = datepicker_input_waktu_selesai.getValue().toString();
             int jam_selesai = spinner_end_hour.getValue();
             int menit_selesai = spinner_end_minute.getValue();
-            String tanggal_waktu_akhir = tanggal_selesai + " " + String.format("%02d:%02d:00", jam_selesai, menit_selesai);
+            String waktu_selesai =String.format("%02d:%02d:00", jam_selesai, menit_selesai);
             
             // Insert into database
-            String insertSQL = "INSERT INTO jadwal (id_pelatih, id_siswa, tanggal_waktu_awal, tanggal_waktu_akhir, kehadiran) VALUES (?, ?, ?, ?, ?)";
+            String insertSQL = "INSERT INTO jadwal (id_pelatih, id_siswa, tanggal, waktu_mulai, waktu_selesai, kehadiran) VALUES (?, ?, ?, ?, ?, ?)";
             try (Connection conn = DriverManager.getConnection(DB_URL);
                  PreparedStatement ps = conn.prepareStatement(insertSQL)) {
                 ps.setInt(1, id_pelatih);
                 ps.setInt(2, id_siswa);
-                ps.setString(3, tanggal_waktu_awal);
-                ps.setString(4, tanggal_waktu_akhir);
-                ps.setString(5, "TIDAK HADIR");
+                ps.setString(3, tanggal);
+                ps.setString(4, waktu_mulai);
+                ps.setString(5, waktu_selesai);
+                ps.setString(6, "TIDAK HADIR");
                 ps.executeUpdate();
                 System.out.println("Jadwal berhasil ditambahkan!");
                 
@@ -394,8 +397,7 @@ public class jadwal_mengajar_controller implements javafx.fxml.Initializable {
         textfield_input_nama_siswa.clear();
         combobox_input_nama_pelatih.getItems().clear();
         combobox_input_nama_siswa.getItems().clear();
-        datepicker_input_waktu_mulai.setValue(null);
-        datepicker_input_waktu_selesai.setValue(null);
+        datepicker_input_tanggal.setValue(null);
         spinner_start_hour.getValueFactory().setValue(0);
         spinner_start_minute.getValueFactory().setValue(0);
         spinner_end_hour.getValueFactory().setValue(0);
