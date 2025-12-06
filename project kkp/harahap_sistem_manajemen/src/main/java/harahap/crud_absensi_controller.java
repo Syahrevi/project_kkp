@@ -518,8 +518,6 @@ public class crud_absensi_controller implements Initializable
             er.printStackTrace();
         }
         table_kehadiran.setItems(data);
-
-        
     }
     
     public void readDataAbsensiByDateRange(ActionEvent e){
