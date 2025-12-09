@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.siswa_crud_controller">
+   <children>
+      <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">
+         <children>
+            <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
+            <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
+            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT TIM SISWA" />
+         </children>
+      </VBox>
+      <TableView fx:id="table_siswa" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="679.0">
+         <columns>
+            <TableColumn fx:id="col_id_siswa" prefWidth="79.0" text="ID Siswa" />
+            <TableColumn fx:id="col_nama_tim" prefWidth="159.0" text="Nama Tim" />
+            <TableColumn fx:id="col_nama_siswa" prefWidth="194.0" text="Nama Siswa" />
+            <TableColumn fx:id="col_tanggal_lahir" minWidth="0.0" prefWidth="135.0" text="Tanggal Lahir" />
+            <TableColumn fx:id="col_kategori" prefWidth="111.0" text="Kategori" />
+         </columns>
+      </TableView>
+      <TitledPane layoutX="835.0" layoutY="14.0" prefHeight="267.0" prefWidth="424.0">
+         <content>
+            <AnchorPane prefHeight="344.0" prefWidth="422.0">
+               <children>
+                  <TextField fx:id="textfield_nama_siswa" layoutX="14.0" layoutY="74.0" prefHeight="25.0" prefWidth="175.0" />
+                  <Label layoutX="14.0" layoutY="57.0" text="Nama Siswa" />
+                  <Label layoutX="14.0" layoutY="99.0" text="Tanggal Lahir" />
+                  <DatePicker fx:id="datepicker_tanggal_lahir" layoutX="14.0" layoutY="116.0" />
+                  <ComboBox fx:id="combobox_kategori" layoutX="14.0" layoutY="161.0" prefHeight="25.0" prefWidth="175.0" />
+                  <Label layoutX="14.0" layoutY="141.0" text="Kategori" />
+                  <Button fx:id="button_submit" layoutX="14.0" layoutY="225.0" mnemonicParsing="false" onAction="#submit" text="SUBMIT" />
+                  <Button fx:id="button_reset" layoutX="72.0" layoutY="225.0" mnemonicParsing="false" onAction="#reset" text="RESET" />
+                  <Button fx:id="button_hapus" layoutX="160.0" layoutY="225.0" mnemonicParsing="false" onAction="#delete" text="HAPUS" />
+                  <Button fx:id="button_edit" layoutX="120.0" layoutY="225.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
+                  <Label layoutX="16.0" layoutY="15.0" text="Nama Tim" />
+                  <ComboBox fx:id="combobox_nama_tim" layoutX="16.0" layoutY="32.0" prefHeight="25.0" prefWidth="173.0" />
+               </children>
+            </AnchorPane>
+         </content>
+      </TitledPane>
+      <VBox layoutX="14.0" layoutY="38.0" prefHeight="206.0" prefWidth="132.0">
+         <children>
+            <Button fx:id="button_jadwal_mengajar1" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
+            <Button fx:id="button_laporan_gaji" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
+            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
