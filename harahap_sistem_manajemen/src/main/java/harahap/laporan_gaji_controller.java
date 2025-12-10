@@ -20,21 +20,21 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.stage.FileChooser;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.converter.IntegerStringConverter;
-import javafx.concurrent.Task;
-import javafx.application.Platform;
 
 
 public class laporan_gaji_controller implements javafx.fxml.Initializable {
@@ -61,7 +61,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
     @FXML private TableView<laporan_gaji2> table_jadwal_laporan2;
     @FXML private TableColumn<laporan_gaji2, Integer> col_id_jadwal2;
     @FXML private TableColumn<laporan_gaji2, String> col_nama_pelatih2;
-    @FXML private TableColumn<laporan_gaji2, String> col_total_jam2;
+    @FXML private TableColumn<laporan_gaji2, Integer> col_total_jam2;
     @FXML private TableColumn<laporan_gaji2, Integer> col_total_gaji2;
     @FXML private ObservableList<laporan_gaji2> data2 = FXCollections.observableArrayList();
 
@@ -70,7 +70,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
     @FXML private TableView<laporan_gaji3> table_jadwal_laporan3;
     @FXML private TableColumn<laporan_gaji3, Integer> col_id_jadwal3;
     @FXML private TableColumn<laporan_gaji3, String> col_nama_pelatih3;
-    @FXML private TableColumn<laporan_gaji3, String> col_total_jam3;
+    @FXML private TableColumn<laporan_gaji3, Integer> col_total_jam3;
     @FXML private TableColumn<laporan_gaji3, Integer> col_total_gaji3;
     @FXML private ObservableList<laporan_gaji3> data3 = FXCollections.observableArrayList();
 
@@ -240,9 +240,29 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     }
                     return null;
                 }
+
+                @Override
+                protected void succeeded() {
+                    Platform.runLater(() -> {
+                        // reload per-jadwal list (preserves current date filter)
+                        loadGajiPerJadwal();
+
+                        // refresh aggregates so day/month/year tables reflect the updated jam
+                        readDataLaporanGajiHariIni();
+                        readDataLaporanGajiBulan();
+                        readDataLaporanGajiTahun();
+                    });
+                }
+
                 @Override
                 protected void failed() {
-                    Platform.runLater(() -> loadGajiPerJadwal());
+                    Platform.runLater(() -> {
+                        // reload to revert UI to DB state
+                        loadGajiPerJadwal();
+                        readDataLaporanGajiHariIni();
+                        readDataLaporanGajiBulan();
+                        readDataLaporanGajiTahun();
+                    });
                     getException().printStackTrace();
                 }
             };
@@ -293,31 +313,49 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         new Thread(t).start();
     }
         private void updateJamAndTotalInDatabase(int idJadwal, int jamValue, int totalGajiValue) {
-        Task<Void> t = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                String sql = "UPDATE jadwal SET total_jam = ?, total_gaji = ? WHERE id_jadwal = ?";
-                try (Connection conn = DriverManager.getConnection(DB_URL);
-                    PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setInt(1, jamValue);
-                    ps.setInt(2, totalGajiValue);
-                    ps.setInt(3, idJadwal);
-                    ps.executeUpdate();
+            Task<Void> t = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    String sql = "UPDATE jadwal SET total_jam = ?, total_gaji = ? WHERE id_jadwal = ?";
+                    try (Connection conn = DriverManager.getConnection(DB_URL);
+                        PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, jamValue);
+                        ps.setInt(2, totalGajiValue);
+                        ps.setInt(3, idJadwal);
+                        ps.executeUpdate();
+                    }
+                    return null;
                 }
-                return null;
-            }
 
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    // reload to revert UI to DB state
-                    loadGajiPerJadwal();
-                });
-                getException().printStackTrace();
-            }
-        };
-        new Thread(t).start();
-    }
+                @Override
+                protected void succeeded() {
+                    // Refresh UI on the JavaFX Application Thread so the change is visible immediately
+                    Platform.runLater(() -> {
+                        // reload per-jadwal list (preserves current date filter)
+                        loadGajiPerJadwal();
+
+                        // refresh aggregates so day/month/year tables reflect the updated values
+                        readDataLaporanGajiHariIni();
+                        readDataLaporanGajiBulan();
+                        readDataLaporanGajiTahun();
+                    });
+                }
+
+                @Override
+                protected void failed() {
+                    Platform.runLater(() -> {
+                        // reload to revert UI to DB state
+                        loadGajiPerJadwal();
+                        readDataLaporanGajiHariIni();
+                        readDataLaporanGajiBulan();
+                        readDataLaporanGajiTahun();
+                    });
+                    getException().printStackTrace();
+                }
+            };
+            new Thread(t).start();
+        }
+
 
     // -------------------------
     // Per-jadwal calculation
@@ -341,14 +379,13 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         String baseSql = ""
             + "SELECT j.id_jadwal, j.id_pelatih, p.nama_pelatih, p.id_grade_keahlian, p.honor, "
             + "       j.id_kelas, k.nama_kelas, j.tanggal, j.waktu_mulai, j.waktu_selesai, "
-            + "       lb.harga, g.nama_grade_keahlian, j.kehadiran_pelatih "
+            + "       j.total_gaji, j.total_jam, lb.harga, g.nama_grade_keahlian, j.kehadiran_pelatih, j.kehadiran_siswa "
             + "FROM jadwal j "
             + "JOIN pelatih p ON j.id_pelatih = p.id_pelatih "
             + "LEFT JOIN kelas k ON j.id_kelas = k.id_kelas "
             + "LEFT JOIN list_biaya lb ON lb.id_kelas = j.id_kelas AND lb.id_nama_grade_keahlian = p.id_grade_keahlian "
             + "LEFT JOIN grade_keahlian g ON p.id_grade_keahlian = g.id_grade_keahlian ";
 
-        // build WHERE (if any)
         String whereClause = "";
         if (from != null && to != null) {
             whereClause = "WHERE j.tanggal BETWEEN ? AND ? ";
@@ -358,10 +395,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
             whereClause = "WHERE j.tanggal = ? ";
         }
 
-        // final ORDER BY
         String orderClause = "ORDER BY j.id_jadwal ASC";
-
-        // final SQL (note spaces)
         String sql = baseSql + whereClause + orderClause;
 
         DateTimeFormatter[] timeParsers = new DateTimeFormatter[] {
@@ -374,7 +408,6 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         try (Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            // set parameters if needed
             if (from != null && to != null) {
                 ps.setString(1, from.toString());
                 ps.setString(2, to.toString());
@@ -394,7 +427,11 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     String waktuSelesaiStr = rs.getString("waktu_selesai");
                     Integer hargaObj = rs.getObject("harga") != null ? rs.getInt("harga") : 0;
                     String honor = rs.getString("honor");
-                    String kehadiran = rs.getString("kehadiran_pelatih"); // NEW
+                    String kehadiran = rs.getString("kehadiran_pelatih");
+                    String kehadiranSiswa = rs.getString("kehadiran_siswa");
+
+                    Integer dbTotalGajiObj = rs.getObject("total_gaji") != null ? rs.getInt("total_gaji") : null;
+                    Integer dbTotalJamObj  = rs.getObject("total_jam")  != null ? rs.getInt("total_jam")  : null;
 
                     LocalTime start = null;
                     LocalTime end = null;
@@ -410,18 +447,36 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         durationHours = dur.toMinutes() / 60.0;
                     }
 
-                    double hargaPerHour = hargaObj != null ? hargaObj.doubleValue() : 0.0;
-                    double rawTotal = durationHours * hargaPerHour;
-                    boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
-                    double finalTotal = honorYes ? rawTotal * 0.5 : rawTotal;
+                    int jamRounded;
+                    int totalGajiRounded;
 
-                    // If kehadiran is "Alfa", force total to 0
-                    if (kehadiran != null && kehadiran.equalsIgnoreCase("alfa")) {
-                        finalTotal = 0.0;
+                    if (dbTotalGajiObj != null) {
+                        // Use DB-stored authoritative values when present
+                        totalGajiRounded = dbTotalGajiObj;
+                        jamRounded = dbTotalJamObj != null ? dbTotalJamObj : (int) Math.round(durationHours);
+                    } else {
+                        // compute as before
+                        double hargaPerHour = hargaObj != null ? hargaObj.doubleValue() : 0.0;
+                        double rawTotal = durationHours * hargaPerHour;
+                        boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
+                        double finalTotal = honorYes ? rawTotal * 0.5 : rawTotal;
+
+                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
+                        boolean siswaTidakHadir = kehadiranSiswa != null &&
+                            (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
+
+                        // Pelatih ALFA => zero (highest precedence)
+                        if (kehadiran != null && kehadiran.equalsIgnoreCase("alfa")) {
+                            finalTotal = 0.0;
+                        }
+                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
+                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiran)) {
+                            finalTotal = 25000.0;
+                        }
+
+                        totalGajiRounded = (int) Math.round(finalTotal);
+                        jamRounded = (int) Math.round(durationHours);
                     }
-
-                    int totalGajiRounded = (int) Math.round(finalTotal);
-                    int jamRounded = (int) Math.round(durationHours);
 
                     String tanggal = rs.getString("tanggal");
 
@@ -433,8 +488,9 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         tanggal != null ? tanggal : "",
                         jamRounded,
                         totalGajiRounded,
-                        hargaObj != null ? hargaObj.intValue() : 0,   // harga_per_jam
-                        kehadiran != null ? kehadiran : ""
+                        hargaObj != null ? hargaObj.intValue() : 0,
+                        kehadiran != null ? kehadiran : "",
+                        kehadiranSiswa != null ? kehadiranSiswa : ""
                     );
                     result.add(row);
                 }
@@ -515,7 +571,8 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         String sql = ""
             + "SELECT j.id_jadwal, j.id_pelatih, p.nama_pelatih, p.id_grade_keahlian, p.honor, "
             + "       j.id_kelas, k.nama_kelas, j.waktu_mulai, j.waktu_selesai, "
-            + "       lb.harga AS harga_perjam "
+            + "       lb.harga AS harga_perjam, j.kehadiran_pelatih, j.kehadiran_siswa, "
+            + "       j.total_gaji, j.total_jam "
             + "FROM jadwal j "
             + "JOIN pelatih p ON j.id_pelatih = p.id_pelatih "
             + "LEFT JOIN kelas k ON j.id_kelas = k.id_kelas "
@@ -534,7 +591,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         };
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, dateYYYYMMDD);
 
@@ -546,6 +603,14 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     String waktuMulaiStr = rs.getString("waktu_mulai");
                     String waktuSelesaiStr = rs.getString("waktu_selesai");
                     int hargaPerJam = rs.getObject("harga_perjam") != null ? rs.getInt("harga_perjam") : 0;
+
+                    // read attendance values
+                    String kehadiranPelatih = rs.getString("kehadiran_pelatih");
+                    String kehadiranSiswa = rs.getString("kehadiran_siswa");
+
+                    // read DB-stored totals if present
+                    Integer dbTotalGaji = rs.getObject("total_gaji") != null ? rs.getInt("total_gaji") : null;
+                    Integer dbTotalJam  = rs.getObject("total_jam")  != null ? rs.getInt("total_jam")  : null;
 
                     LocalTime start = null;
                     LocalTime end = null;
@@ -561,8 +626,32 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         durationHours = dur.toMinutes() / 60.0;
                     }
 
-                    double rowTotal = durationHours * (double) hargaPerJam;
-                    if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+                    double rowTotal;
+                    int jamForRow;
+
+                    if (dbTotalGaji != null) {
+                        // Use DB-stored authoritative values when present
+                        rowTotal = dbTotalGaji.doubleValue();
+                        jamForRow = dbTotalJam != null ? dbTotalJam : (int) Math.round(durationHours);
+                    } else {
+                        rowTotal = durationHours * (double) hargaPerJam;
+                        if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+
+                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
+                        boolean siswaTidakHadir = kehadiranSiswa != null &&
+                            (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
+
+                        // Pelatih ALFA => zero (highest precedence)
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
+                            rowTotal = 0.0;
+                        }
+                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
+                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            rowTotal = 25000.0;
+                        }
+
+                        jamForRow = (int) Math.round(durationHours);
+                    }
 
                     Acc acc = map.get(idPelatih);
                     if (acc == null) {
@@ -570,7 +659,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         acc.namaPelatih = namaPelatih != null ? namaPelatih : "";
                         map.put(idPelatih, acc);
                     }
-                    acc.totalHours += durationHours;
+                    acc.totalHours += jamForRow;
                     acc.totalGaji += rowTotal;
                 }
             }
@@ -595,21 +684,26 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         table_jadwal_laporan1.setItems(data1);
     }
 
+
     // -------------------------
     // Bulan (per-pelatih aggregate)
     // -------------------------
     public void readDataLaporanGajiBulan() {
-        String ym = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+    String ym = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
         readDataLaporanGajiBulan(ym);
     }
-
+    public void readDataLaporanGajiTahun() {
+    String year = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+    readDataLaporanGajiTahun(year);
+    }
     public void readDataLaporanGajiBulan(String yearMonth) {
         data2.clear();
 
         String sql = ""
             + "SELECT j.id_jadwal, j.id_pelatih, p.nama_pelatih, p.id_grade_keahlian, p.honor, "
             + "       j.id_kelas, j.tanggal, j.waktu_mulai, j.waktu_selesai, "
-            + "       lb.harga AS harga_perjam "
+            + "       lb.harga AS harga_perjam, j.kehadiran_pelatih, j.kehadiran_siswa, "
+            + "       j.total_gaji, j.total_jam "
             + "FROM jadwal j "
             + "JOIN pelatih p ON j.id_pelatih = p.id_pelatih "
             + "LEFT JOIN list_biaya lb ON lb.id_kelas = j.id_kelas AND lb.id_nama_grade_keahlian = p.id_grade_keahlian "
@@ -627,7 +721,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         };
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, yearMonth);
 
@@ -639,6 +733,14 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     String waktuMulaiStr = rs.getString("waktu_mulai");
                     String waktuSelesaiStr = rs.getString("waktu_selesai");
                     int hargaPerJam = rs.getObject("harga_perjam") != null ? rs.getInt("harga_perjam") : 0;
+
+                    // read attendance values
+                    String kehadiranPelatih = rs.getString("kehadiran_pelatih");
+                    String kehadiranSiswa = rs.getString("kehadiran_siswa");
+
+                    // read DB-stored totals if present
+                    Integer dbTotalGaji = rs.getObject("total_gaji") != null ? rs.getInt("total_gaji") : null;
+                    Integer dbTotalJam  = rs.getObject("total_jam")  != null ? rs.getInt("total_jam")  : null;
 
                     LocalTime start = null;
                     LocalTime end = null;
@@ -654,8 +756,33 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         durationHours = dur.toMinutes() / 60.0;
                     }
 
-                    double rowTotal = durationHours * (double) hargaPerJam;
-                    if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+                    double rowTotal;
+                    int jamForRow;
+
+                    if (dbTotalGaji != null) {
+                        // Use DB-stored authoritative values when present
+                        rowTotal = dbTotalGaji.doubleValue();
+                        jamForRow = dbTotalJam != null ? dbTotalJam : (int) Math.round(durationHours);
+                    } else {
+                        // compute as before
+                        rowTotal = durationHours * (double) hargaPerJam;
+                        if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+
+                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
+                        boolean siswaTidakHadir = kehadiranSiswa != null &&
+                            (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
+
+                        // Pelatih ALFA => zero (highest precedence)
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
+                            rowTotal = 0.0;
+                        }
+                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
+                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            rowTotal = 25000.0;
+                        }
+
+                        jamForRow = (int) Math.round(durationHours);
+                    }
 
                     Acc a = accum.get(idPelatih);
                     if (a == null) {
@@ -663,7 +790,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         a.namaPelatih = namaPelatih != null ? namaPelatih : "";
                         accum.put(idPelatih, a);
                     }
-                    a.totalHours += durationHours;
+                    a.totalHours += jamForRow;
                     a.totalGaji += rowTotal;
                 }
             }
@@ -676,12 +803,11 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
             Acc a = e.getValue();
             int totalJamRounded = (int) Math.round(a.totalHours);
             int totalGajiRounded = (int) Math.round(a.totalGaji);
-            String tanggalLabel = yearMonth;
 
             data2.add(new laporan_gaji2(
                 idPelatih,
                 a.namaPelatih,
-                tanggalLabel,
+                yearMonth,
                 totalJamRounded,
                 totalGajiRounded
             ));
@@ -690,21 +816,14 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         table_jadwal_laporan2.setItems(data2);
     }
 
-    // -------------------------
-    // Tahun (per-pelatih aggregate)
-    // -------------------------
-    public void readDataLaporanGajiTahun() {
-        String year = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
-        readDataLaporanGajiTahun(year);
-    }
-
     public void readDataLaporanGajiTahun(String year) {
         data3.clear();
 
         String sql = ""
             + "SELECT j.id_jadwal, j.id_pelatih, p.nama_pelatih, p.id_grade_keahlian, p.honor, "
             + "       j.id_kelas, j.tanggal, j.waktu_mulai, j.waktu_selesai, "
-            + "       lb.harga AS harga_perjam "
+            + "       lb.harga AS harga_perjam, j.kehadiran_pelatih, j.kehadiran_siswa, "
+            + "       j.total_gaji, j.total_jam "
             + "FROM jadwal j "
             + "JOIN pelatih p ON j.id_pelatih = p.id_pelatih "
             + "LEFT JOIN list_biaya lb ON lb.id_kelas = j.id_kelas AND lb.id_nama_grade_keahlian = p.id_grade_keahlian "
@@ -722,7 +841,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         };
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, year);
 
@@ -734,6 +853,14 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     String waktuMulaiStr = rs.getString("waktu_mulai");
                     String waktuSelesaiStr = rs.getString("waktu_selesai");
                     int hargaPerJam = rs.getObject("harga_perjam") != null ? rs.getInt("harga_perjam") : 0;
+
+                    // read attendance values
+                    String kehadiranPelatih = rs.getString("kehadiran_pelatih");
+                    String kehadiranSiswa = rs.getString("kehadiran_siswa");
+
+                    // read DB-stored totals if present
+                    Integer dbTotalGaji = rs.getObject("total_gaji") != null ? rs.getInt("total_gaji") : null;
+                    Integer dbTotalJam  = rs.getObject("total_jam")  != null ? rs.getInt("total_jam")  : null;
 
                     LocalTime start = null;
                     LocalTime end = null;
@@ -749,8 +876,33 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         durationHours = dur.toMinutes() / 60.0;
                     }
 
-                    double rowTotal = durationHours * (double) hargaPerJam;
-                    if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+                    double rowTotal;
+                    int jamForRow;
+
+                    if (dbTotalGaji != null) {
+                        // Use DB-stored authoritative values when present
+                        rowTotal = dbTotalGaji.doubleValue();
+                        jamForRow = dbTotalJam != null ? dbTotalJam : (int) Math.round(durationHours);
+                    } else {
+                        // compute as before
+                        rowTotal = durationHours * (double) hargaPerJam;
+                        if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+
+                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
+                        boolean siswaTidakHadir = kehadiranSiswa != null &&
+                            (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
+
+                        // Pelatih ALFA => zero (highest precedence)
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
+                            rowTotal = 0.0;
+                        }
+                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
+                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            rowTotal = 25000.0;
+                        }
+
+                        jamForRow = (int) Math.round(durationHours);
+                    }
 
                     Acc a = accum.get(idPelatih);
                     if (a == null) {
@@ -758,7 +910,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                         a.namaPelatih = namaPelatih != null ? namaPelatih : "";
                         accum.put(idPelatih, a);
                     }
-                    a.totalHours += durationHours;
+                    a.totalHours += jamForRow;
                     a.totalGaji += rowTotal;
                 }
             }

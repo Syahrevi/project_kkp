@@ -15,8 +15,9 @@ public class GajiPerJadwal {
     private final IntegerProperty total_gaji;
     private final IntegerProperty harga_per_jam; // NEW
     private final StringProperty kehadiran_pelatih; // NEW
+    private final StringProperty kehadiran_siswa; // NEW
 
-    public GajiPerJadwal(int id_jadwal, String nama_pelatih, String nama_grade_keahlian, String nama_kelas, String tanggal, int jam, int total_gaji, int harga_per_jam, String kehadiran_pelatih) {
+    public GajiPerJadwal(int id_jadwal, String nama_pelatih, String nama_grade_keahlian, String nama_kelas, String tanggal, int jam, int total_gaji, int harga_per_jam, String kehadiran_pelatih, String kehadiran_siswa) {
         this.id_jadwal = new SimpleIntegerProperty(id_jadwal);
         this.nama_pelatih = new SimpleStringProperty(nama_pelatih);
         this.nama_grade_keahlian = new SimpleStringProperty(nama_grade_keahlian);
@@ -26,6 +27,7 @@ public class GajiPerJadwal {
         this.total_gaji = new SimpleIntegerProperty(total_gaji);
         this.harga_per_jam = new SimpleIntegerProperty(harga_per_jam);
         this.kehadiran_pelatih = new SimpleStringProperty(kehadiran_pelatih);
+        this.kehadiran_siswa = new SimpleStringProperty(kehadiran_siswa);
     }
 
     // Getters (JavaBean style matching PropertyValueFactory keys)
@@ -56,6 +58,9 @@ public class GajiPerJadwal {
     public String getKehadiran_pelatih() {
         return kehadiran_pelatih.get();
     }
+    public String getKehadiran_siswa() {
+        return kehadiran_siswa.get();
+    }
 
     // Setters
     public void setId_jadwal(int value) {
@@ -84,6 +89,9 @@ public class GajiPerJadwal {
     }
     public void setKehadiran_pelatih(String value) {
         kehadiran_pelatih.set(value);
+    }
+    public void setKehadiran_siswa(String value) {
+        kehadiran_siswa.set(value);
     }
 
     // Property accessors
@@ -114,4 +122,7 @@ public class GajiPerJadwal {
     public StringProperty kehadiran_pelatihProperty() {
          return kehadiran_pelatih; 
         }
+    public StringProperty kehadiran_siswaProperty() {
+         return kehadiran_siswa; 
+    }
 }

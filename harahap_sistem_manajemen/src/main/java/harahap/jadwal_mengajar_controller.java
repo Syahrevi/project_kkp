@@ -158,6 +158,158 @@ public class jadwal_mengajar_controller implements Initializable {
 
         readDataJadwalMengajar();
     }
+    //HELPER METHODS=========================================================
+    private void updateAttendanceAndRecompute(int idJadwal, String newKehadiranPelatih, String newKehadiranSiswa, jadwal_mengajar row) {
+        final String kp = newKehadiranPelatih == null ? null : newKehadiranPelatih.trim().toUpperCase();
+        final String ks = newKehadiranSiswa == null ? null : newKehadiranSiswa.trim().toUpperCase();
+        final String oldKp = row != null ? row.getKehadiran_pelatih() : null;
+        final String oldKs = row != null ? row.getKehadiran_siswa() : null;
+
+        Task<Void> t = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                String sql = "UPDATE jadwal SET kehadiran_pelatih = ?, kehadiran_siswa = ? WHERE id_jadwal = ?";
+                try (Connection conn = DriverManager.getConnection(DB_URL);
+                    PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, kp);
+                    ps.setString(2, ks);
+                    ps.setInt(3, idJadwal);
+                    ps.executeUpdate();
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                // recompute authoritative totals and persist them
+                recomputeAndPersistTotalForJadwal(idJadwal);
+
+                // refresh UI on FX thread after recompute started
+                Platform.runLater(() -> {
+                    // update row model (already optimistic but ensure normalized)
+                    if (row != null) {
+                        row.setKehadiran_pelatih(kp);
+                        row.setKehadiran_siswa(ks);
+                    }
+                    table_jadwal_mengajar.refresh();
+                    if (laporan_gaji_controller.INSTANCE != null) {
+                        laporan_gaji_controller.INSTANCE.loadGajiPerJadwal();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiHariIni();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiBulan();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiTahun();
+                    }
+                });
+            }
+
+            @Override
+            protected void failed() {
+                // revert optimistic UI change
+                Platform.runLater(() -> {
+                    if (row != null) {
+                        row.setKehadiran_pelatih(oldKp);
+                        row.setKehadiran_siswa(oldKs);
+                    }
+                    table_jadwal_mengajar.refresh();
+                });
+                getException().printStackTrace();
+            }
+        };
+        new Thread(t).start();
+    }
+    
+    private void recomputeAndPersistTotalForJadwal(int idJadwal) {
+        Task<Void> t = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                String q = "SELECT j.waktu_mulai, j.waktu_selesai, j.kehadiran_pelatih, j.kehadiran_siswa, "
+                        + "p.honor, lb.harga "
+                        + "FROM jadwal j "
+                        + "JOIN pelatih p ON j.id_pelatih = p.id_pelatih "
+                        + "LEFT JOIN list_biaya lb ON lb.id_kelas = j.id_kelas AND lb.id_nama_grade_keahlian = p.id_grade_keahlian "
+                        + "WHERE j.id_jadwal = ?";
+                try (Connection conn = DriverManager.getConnection(DB_URL);
+                    PreparedStatement ps = conn.prepareStatement(q)) {
+                    ps.setInt(1, idJadwal);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) return null;
+                        String waktuMulai = rs.getString("waktu_mulai");
+                        String waktuSelesai = rs.getString("waktu_selesai");
+                        String kehadiranPelatih = rs.getString("kehadiran_pelatih");
+                        String kehadiranSiswa = rs.getString("kehadiran_siswa");
+                        String honor = rs.getString("honor");
+                        int harga = rs.getObject("harga") != null ? rs.getInt("harga") : 0;
+
+                        java.time.format.DateTimeFormatter[] timeParsers = new java.time.format.DateTimeFormatter[] {
+                            java.time.format.DateTimeFormatter.ofPattern("H:mm:ss"),
+                            java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"),
+                            java.time.format.DateTimeFormatter.ofPattern("H:mm"),
+                            java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                        };
+
+                        java.time.LocalTime start = null, end = null;
+                        for (java.time.format.DateTimeFormatter fmt : timeParsers) {
+                            try { if (start == null && waktuMulai != null) start = java.time.LocalTime.parse(waktuMulai, fmt); } catch (Exception ex) {}
+                            try { if (end == null && waktuSelesai != null) end = java.time.LocalTime.parse(waktuSelesai, fmt); } catch (Exception ex) {}
+                        }
+
+                        double durationHours = 0.0;
+                        if (start != null && end != null) {
+                            java.time.Duration dur = java.time.Duration.between(start, end);
+                            if (dur.isNegative() || dur.isZero()) dur = java.time.Duration.between(start, end.plusHours(24));
+                            durationHours = dur.toMinutes() / 60.0;
+                        }
+
+                        double raw = durationHours * (double) harga;
+                        boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
+                        double total = honorYes ? raw * 0.5 : raw;
+
+                        // normalize and interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
+                        boolean siswaTidakHadir = kehadiranSiswa != null &&
+                            (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
+
+                        // Pelatih ALFA => zero (highest precedence)
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
+                            total = 0.0;
+                        }
+                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
+                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            total = 25000.0;
+                        }
+
+                        int totalRounded = (int) Math.round(total);
+
+                        String up = "UPDATE jadwal SET total_gaji = ?, total_jam = ? WHERE id_jadwal = ?";
+                        try (PreparedStatement ups = conn.prepareStatement(up)) {
+                            ups.setInt(1, totalRounded);
+                            ups.setInt(2, (int) Math.round(durationHours));
+                            ups.setInt(3, idJadwal);
+                            ups.executeUpdate();
+                        }
+                    }
+                }
+                return null;
+            }
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    readDataJadwalMengajar();
+                    if (laporan_gaji_controller.INSTANCE != null) {
+                        laporan_gaji_controller.INSTANCE.loadGajiPerJadwal();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiHariIni();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiBulan();
+                        laporan_gaji_controller.INSTANCE.readDataLaporanGajiTahun();
+                    }
+                });
+            }
+
+            @Override
+            protected void failed() {
+                getException().printStackTrace();
+            }
+        };
+        new Thread(t).start();
+    }
+
     // Load pelatih list into pelatihDataList and combobox_input_nama_pelatih
 private void loadPelatihData() {
     pelatihDataList.clear();
@@ -619,6 +771,13 @@ public void editKehadiranPelatih(javafx.event.Event e) {
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
+                    // refresh UI and aggregates you already have
+                    table_jadwal_mengajar.refresh();
+
+                    // recompute and persist total_gaji for this jadwal
+                    recomputeAndPersistTotalForJadwal(selected.getId_jadwalInt());
+
+                    // refresh laporan gaji after recompute completes (you may call immediately; recompute runs in background)
                     if (harahap.laporan_gaji_controller.INSTANCE != null) {
                         harahap.laporan_gaji_controller.INSTANCE.loadGajiPerJadwal();
                         harahap.laporan_gaji_controller.INSTANCE.readDataLaporanGajiHariIni();
@@ -662,9 +821,31 @@ public void editKehadiranPelatih(javafx.event.Event e) {
                 }
                 return null;
             }
+
+            @Override
+            protected void succeeded() {
+                // run UI updates on FX thread
+                Platform.runLater(() -> {
+                    // keep optimistic UI (already set above) in sync
+                    table_jadwal_mengajar.refresh();
+
+                    // recompute and persist total_gaji for this jadwal (background task inside helper)
+                    recomputeAndPersistTotalForJadwal(selected.getId_jadwalInt());
+
+                    // refresh laporan gaji views (they will reload from DB)
+                    if (harahap.laporan_gaji_controller.INSTANCE != null) {
+                        harahap.laporan_gaji_controller.INSTANCE.loadGajiPerJadwal();
+                        harahap.laporan_gaji_controller.INSTANCE.readDataLaporanGajiHariIni();
+                        harahap.laporan_gaji_controller.INSTANCE.readDataLaporanGajiBulan();
+                        harahap.laporan_gaji_controller.INSTANCE.readDataLaporanGajiTahun();
+                    }
+                });
+            }
+
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
+                    // revert optimistic UI change on failure
                     selected.setKehadiran_siswa(current);
                     table_jadwal_mengajar.refresh();
                 });
@@ -914,7 +1095,7 @@ public void editKehadiranPelatih(javafx.event.Event e) {
     }
 
     // --- Cell factories for kehadiran columns ---
-    private void setupKehadiranPelatihCellFactory() {
+        private void setupKehadiranPelatihCellFactory() {
         if (col_kehadiran_pelatih == null) return;
         col_kehadiran_pelatih.setCellFactory(col -> {
             TableCell<jadwal_mengajar, String> cell = new TableCell<>() {
@@ -933,32 +1114,13 @@ public void editKehadiranPelatih(javafx.event.Event e) {
                 String current = row.getKehadiran_pelatih();
                 String next = "HADIR".equalsIgnoreCase(current) ? "ALFA" : "HADIR";
 
+                // optimistic UI update
                 row.setKehadiran_pelatih(next);
                 table_jadwal_mengajar.refresh();
 
                 int id = row.getId_jadwalInt();
-                Task<Void> dbTask = new Task<>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        String updateSQL = "UPDATE jadwal SET kehadiran_pelatih = ? WHERE id_jadwal = ?";
-                        try (Connection conn = DriverManager.getConnection(DB_URL);
-                             PreparedStatement ps = conn.prepareStatement(updateSQL)) {
-                            ps.setString(1, next);
-                            ps.setInt(2, id);
-                            ps.executeUpdate();
-                        }
-                        return null;
-                    }
-                    @Override
-                    protected void failed() {
-                        Platform.runLater(() -> {
-                            row.setKehadiran_pelatih(current);
-                            table_jadwal_mengajar.refresh();
-                        });
-                        getException().printStackTrace();
-                    }
-                };
-                new Thread(dbTask).start();
+                // pass both values so DB has full attendance state
+                updateAttendanceAndRecompute(id, next, row.getKehadiran_siswa(), row);
             });
 
             return cell;
@@ -984,32 +1146,13 @@ public void editKehadiranPelatih(javafx.event.Event e) {
                 String current = row.getKehadiran_siswa();
                 String next = "HADIR".equalsIgnoreCase(current) ? "ALFA" : "HADIR";
 
+                // optimistic UI update
                 row.setKehadiran_siswa(next);
                 table_jadwal_mengajar.refresh();
 
                 int id = row.getId_jadwalInt();
-                Task<Void> dbTask = new Task<>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        String updateSQL = "UPDATE jadwal SET kehadiran_siswa = ? WHERE id_jadwal = ?";
-                        try (Connection conn = DriverManager.getConnection(DB_URL);
-                             PreparedStatement ps = conn.prepareStatement(updateSQL)) {
-                            ps.setString(1, next);
-                            ps.setInt(2, id);
-                            ps.executeUpdate();
-                        }
-                        return null;
-                    }
-                    @Override
-                    protected void failed() {
-                        Platform.runLater(() -> {
-                            row.setKehadiran_siswa(current);
-                            table_jadwal_mengajar.refresh();
-                        });
-                        getException().printStackTrace();
-                    }
-                };
-                new Thread(dbTask).start();
+                // pass both values so DB has full attendance state
+                updateAttendanceAndRecompute(id, row.getKehadiran_pelatih(), next, row);
             });
 
             return cell;
