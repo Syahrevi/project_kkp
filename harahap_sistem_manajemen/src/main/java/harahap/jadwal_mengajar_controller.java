@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ResourceBundle;
@@ -59,7 +60,7 @@ public class jadwal_mengajar_controller implements Initializable {
     @FXML private Spinner<Integer> spinner_end_minute;
     @FXML private ComboBox<String> combobox_input_nama_pelatih;
     @FXML private ComboBox<TimData> combobox_input_nama_tim;
-    @FXML private TextField textfield_input_nama_pelatih;
+    // @FXML private TextField textfield_input_nama_pelatih;
     @FXML private TextField textfield_input_nama_siswa;
     @FXML private ComboBox<KelasData> combobox_kelas;
 
@@ -157,8 +158,113 @@ public class jadwal_mengajar_controller implements Initializable {
         }
 
         readDataJadwalMengajar();
+        table_jadwal_mengajar.getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldSelection, newSelection) -> {
+                if (newSelection != null) populateFormFromSelected(newSelection);
+            }
+        );
     }
     //HELPER METHODS=========================================================
+    private void populateFormFromSelected(jadwal_mengajar schedule) {
+
+        /* =========================
+        Pelatih
+        ========================= */
+        if (schedule.getNama_pelatih() != null) {
+            for (PelatihData p : pelatihDataList) {
+                String display =
+                    p.getNama_pelatih() +
+                    (p.getNama_keahlian() != null
+                        ? " (" + p.getNama_keahlian() + ")"
+                        : "");
+
+                if (p.getNama_pelatih()
+                        .equalsIgnoreCase(schedule.getNama_pelatih())) {
+                    combobox_input_nama_pelatih.setValue(display);
+                    break;
+                }
+            }
+        }
+
+        /* =========================
+        Tim
+        ========================= */
+        if (schedule.getNama_tim() != null) {
+            for (TimData t : timDataList) {
+                if (schedule.getNama_tim().equals(t.getNama_tim())) {
+                    combobox_input_nama_tim.getSelectionModel().select(t);
+                    break;
+                }
+            }
+        } else {
+            combobox_input_nama_tim.setValue(null);
+        }
+
+        /* =========================
+        Kelas
+        ========================= */
+        if (schedule.getNama_kelas() != null) {
+            for (KelasData k : kelasDataList) {
+                if (schedule.getNama_kelas().equals(k.getNama_kelas())) {
+                    combobox_kelas.getSelectionModel().select(k);
+                    break;
+                }
+            }
+        } else {
+            combobox_kelas.setValue(null);
+        }
+
+        /* =========================
+        CLEAR DAY SELECTION
+        ========================= */
+        if (hari != null) {
+            hari.selectToggle(null);
+        }
+
+        /* =========================
+        HARI BERULANG (PRIMARY)
+        ========================= */
+        if (schedule.getHari_berulang() != null) {
+            switch (schedule.getHari_berulang().toString().toUpperCase()) {
+                case "1", "SENIN"  -> input_senin.setSelected(true);
+                case "2", "SELASA" -> input_selasa.setSelected(true);
+                case "3", "RABU"   -> input_rabu.setSelected(true);
+                case "4", "KAMIS"  -> input_kamis.setSelected(true);
+                case "5", "JUMAT"  -> input_jumat.setSelected(true);
+                case "6", "SABTU"  -> input_sabtu.setSelected(true);
+                case "7", "MINGGU" -> input_minggu.setSelected(true);
+            }
+        }
+
+        /* =========================
+        TANGGAL (SECONDARY)
+        ========================= */
+        try {
+            if (schedule.getTanggal() != null) {
+                datepicker_input_tanggal
+                        .setValue(LocalDate.parse(schedule.getTanggal()));
+            } else {
+                datepicker_input_tanggal.setValue(null);
+            }
+        } catch (Exception e) {
+            datepicker_input_tanggal.setValue(null);
+        }
+
+        /* =========================
+        WAKTU
+        ========================= */
+        try {
+            LocalTime start = LocalTime.parse(schedule.getWaktu_mulai());
+            spinner_start_hour.getValueFactory().setValue(start.getHour());
+            spinner_start_minute.getValueFactory().setValue(start.getMinute());
+        } catch (Exception ignored) {}
+
+        try {
+            LocalTime end = LocalTime.parse(schedule.getWaktu_selesai());
+            spinner_end_hour.getValueFactory().setValue(end.getHour());
+            spinner_end_minute.getValueFactory().setValue(end.getMinute());
+        } catch (Exception ignored) {}
+    }
     private void updateAttendanceAndRecompute(int idJadwal, String newKehadiranPelatih, String newKehadiranSiswa, jadwal_mengajar row) {
         final String kp = newKehadiranPelatih == null ? null : newKehadiranPelatih.trim().toUpperCase();
         final String ks = newKehadiranSiswa == null ? null : newKehadiranSiswa.trim().toUpperCase();
@@ -258,8 +364,9 @@ public class jadwal_mengajar_controller implements Initializable {
                             if (dur.isNegative() || dur.isZero()) dur = java.time.Duration.between(start, end.plusHours(24));
                             durationHours = dur.toMinutes() / 60.0;
                         }
+                        int fullHours = (int) Math.floor(durationHours);
 
-                        double raw = durationHours * (double) harga;
+                        double raw = fullHours * (double) harga;
                         boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
                         double total = honorYes ? raw * 0.5 : raw;
 
@@ -278,13 +385,14 @@ public class jadwal_mengajar_controller implements Initializable {
 
                         int totalRounded = (int) Math.round(total);
 
+                        // persist fullHours into total_jam (not rounded fractional hours)
                         String up = "UPDATE jadwal SET total_gaji = ?, total_jam = ? WHERE id_jadwal = ?";
                         try (PreparedStatement ups = conn.prepareStatement(up)) {
                             ups.setInt(1, totalRounded);
-                            ups.setInt(2, (int) Math.round(durationHours));
+                            ups.setInt(2, fullHours);
                             ups.setInt(3, idJadwal);
                             ups.executeUpdate();
-                        }
+}
                     }
                 }
                 return null;
@@ -311,32 +419,39 @@ public class jadwal_mengajar_controller implements Initializable {
     }
 
     // Load pelatih list into pelatihDataList and combobox_input_nama_pelatih
-private void loadPelatihData() {
-    pelatihDataList.clear();
-    String sql = "SELECT p.id_pelatih, p.nama_pelatih, g.nama_grade_keahlian AS nama_keahlian "
-               + "FROM pelatih p "
-               + "LEFT JOIN grade_keahlian g ON p.id_grade_keahlian = g.id_grade_keahlian "
-               + "ORDER BY p.nama_pelatih ASC";
-    try (Connection conn = DriverManager.getConnection(DB_URL);
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            pelatihDataList.add(new PelatihData(
-                rs.getInt("id_pelatih"),
-                rs.getString("nama_pelatih"),
-                rs.getString("nama_keahlian") // may be null
-            ));
+    private void loadPelatihData() {
+        pelatihDataList.clear();
+        String sql = "SELECT p.id_pelatih, p.nama_pelatih, g.nama_grade_keahlian AS nama_keahlian "
+                + "FROM pelatih p "
+                + "LEFT JOIN grade_keahlian g ON p.id_grade_keahlian = g.id_grade_keahlian "
+                + "ORDER BY p.nama_pelatih ASC";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                pelatihDataList.add(new PelatihData(
+                    rs.getInt("id_pelatih"),
+                    rs.getString("nama_pelatih"),
+                    rs.getString("nama_keahlian") // may be null
+                ));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-    } catch (SQLException ex) {
-        ex.printStackTrace();
-    }
-    // populate combobox_input_nama_pelatih if present (strings used elsewhere in your code)
-    if (combobox_input_nama_pelatih != null) {
-        ObservableList<String> items = FXCollections.observableArrayList();
-        for (PelatihData p : pelatihDataList) items.add(p.toString());
+        // populate combobox_input_nama_pelatih if present (strings used elsewhere in your code)
+        if (combobox_input_nama_pelatih != null) {
+            ObservableList<String> items = FXCollections.observableArrayList();
+            for (PelatihData p : pelatihDataList) {
+                items.add(
+                    p.getNama_pelatih() +
+                    (p.getNama_keahlian() != null
+                        ? " (" + p.getNama_keahlian() + ")"
+                        : "")
+                );
+            }
         combobox_input_nama_pelatih.setItems(items);
+        }
     }
-}
 
 // Load siswa list into siswaDataList (and optionally a combobox if you add one)
 private void loadSiswaData() {
@@ -363,15 +478,14 @@ private void loadSiswaData() {
 
 private void loadTimData() {
     timDataList.clear();
-    String sql = "SELECT id_tim, nama_tim, kategori_tim FROM tim_siswa ORDER BY nama_tim ASC";
+    String sql = "SELECT id_tim, nama_tim FROM tim_siswa ORDER BY nama_tim ASC";
     try (Connection conn = DriverManager.getConnection(DB_URL);
          PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
             timDataList.add(new TimData(
                 rs.getInt("id_tim"),
-                rs.getString("nama_tim"),
-                rs.getString("kategori_tim")
+                rs.getString("nama_tim")
             ));
         }
     } catch (SQLException ex) {
@@ -991,7 +1105,7 @@ public void editKehadiranPelatih(javafx.event.Event e) {
             }
 
             // Refresh table and reset form
-            readDataJadwalMengajar();
+            showAllDataSetting(null);
             resetJadwalForm();
             System.out.println("Jadwal berhasil ditambahkan.");
             } catch (Exception ex) {
@@ -1006,8 +1120,14 @@ public void editKehadiranPelatih(javafx.event.Event e) {
         if (selectedJadwal == null) return;
 
         try {
-            String namaPelatih = textfield_input_nama_pelatih.getText().trim();
             TimData selectedTim = combobox_input_nama_tim.getValue();
+            String selectedText = combobox_input_nama_pelatih.getValue();
+            String namaPelatih = selectedText.split("\\(")[0].trim();
+            
+            if (selectedText == null || selectedText.isBlank()) {
+                System.err.println("Error: Pelatih harus dipilih!");
+                return;
+}
 
             if (namaPelatih.isEmpty() || selectedTim == null) {
                 System.err.println("Error: Nama pelatih dan tim harus diisi!");
@@ -1030,16 +1150,17 @@ public void editKehadiranPelatih(javafx.event.Event e) {
             }
 
             Integer id_pelatih = null;
-            for (PelatihData p : pelatihDataList) {
-                if (p.toString().equals(namaPelatih)) {
-                    id_pelatih = p.getId_pelatih();
-                    break;
+                for (PelatihData p : pelatihDataList) {
+                    if (p.getNama_pelatih().equalsIgnoreCase(namaPelatih)) {
+                        id_pelatih = p.getId_pelatih();
+                        break;
+                    }
                 }
-            }
-            if (id_pelatih == null) {
-                System.err.println("Error: Pelatih tidak ditemukan!");
-                return;
-            }
+
+                if (id_pelatih == null) {
+                    System.err.println("Error: Pelatih tidak ditemukan!");
+                    return;
+                }
 
             Integer id_tim = selectedTim.getId_tim();
 
@@ -1081,11 +1202,53 @@ public void editKehadiranPelatih(javafx.event.Event e) {
     }
 
     // --- Utility: initialize time spinners ---
+    private boolean updatingEnd = false;
     private void initializeTimeSpinners() {
-        spinner_start_hour.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
-        spinner_start_minute.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
-        spinner_end_hour.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
-        spinner_end_minute.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
+        // hour: 0-23, minute: 0-59
+        SpinnerValueFactory.IntegerSpinnerValueFactory startHourFactory =
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 8);
+        SpinnerValueFactory.IntegerSpinnerValueFactory startMinuteFactory =
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0);
+        SpinnerValueFactory.IntegerSpinnerValueFactory endHourFactory =
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 9);
+        SpinnerValueFactory.IntegerSpinnerValueFactory endMinuteFactory =
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0);
+
+        spinner_start_hour.setValueFactory(startHourFactory);
+        spinner_start_minute.setValueFactory(startMinuteFactory);
+        spinner_end_hour.setValueFactory(endHourFactory);
+        spinner_end_minute.setValueFactory(endMinuteFactory);
+
+        spinner_start_hour.setEditable(true);
+        spinner_start_minute.setEditable(true);
+        spinner_end_hour.setEditable(true);
+        spinner_end_minute.setEditable(true);
+
+        // helper to update end spinners based on start spinners
+        Runnable updateEndFromStart = () -> {
+            if (updatingEnd) return;
+            try {
+                updatingEnd = true;
+                int sh = spinner_start_hour.getValue();
+                int sm = spinner_start_minute.getValue();
+                java.time.LocalTime start = java.time.LocalTime.of(sh, sm);
+                java.time.LocalTime end = start.plusHours(1);
+                // set end values (use Platform.runLater to avoid UI thread conflicts)
+                Platform.runLater(() -> {
+                    spinner_end_hour.getValueFactory().setValue(end.getHour());
+                    spinner_end_minute.getValueFactory().setValue(end.getMinute());
+                });
+            } finally {
+                updatingEnd = false;
+            }
+        };
+
+        // listeners for changes on start spinners
+        spinner_start_hour.valueProperty().addListener((obs, oldV, newV) -> updateEndFromStart.run());
+        spinner_start_minute.valueProperty().addListener((obs, oldV, newV) -> updateEndFromStart.run());
+
+        // Optional: if user edits end manually, do not override until they change start again.
+        // If you want to keep end locked to start always, you can also add listeners on end to revert.
     }
 
     // --- Helper: get selected kelas id ---
@@ -1169,12 +1332,51 @@ public void editKehadiranPelatih(javafx.event.Event e) {
 
     // --- Reset form helper (example) ---
     private void resetJadwalForm() {
-        if (textfield_input_nama_pelatih != null) textfield_input_nama_pelatih.clear();
-        if (textfield_input_nama_siswa != null) textfield_input_nama_siswa.clear();
-        if (datepicker_input_tanggal != null) datepicker_input_tanggal.setValue(null);
-        if (combobox_input_nama_tim != null) combobox_input_nama_tim.getSelectionModel().clearSelection();
-        if (combobox_kelas != null) combobox_kelas.getSelectionModel().clearSelection();
-        if (progresifAtauTransisi != null) progresifAtauTransisi.selectToggle(null);
+
+        /* =========================
+        Pelatih ComboBox (String)
+        ========================= */
+        if (combobox_input_nama_pelatih != null) {
+            combobox_input_nama_pelatih.getSelectionModel().clearSelection();
+            combobox_input_nama_pelatih.setValue(null); // IMPORTANT for String ComboBox
+        }
+
+        /* =========================
+        Tim ComboBox
+        ========================= */
+        if (combobox_input_nama_tim != null) {
+            combobox_input_nama_tim.getSelectionModel().clearSelection();
+            combobox_input_nama_tim.setValue(null);
+        }
+
+        /* =========================
+        Kelas ComboBox
+        ========================= */
+        if (combobox_kelas != null) {
+            combobox_kelas.getSelectionModel().clearSelection();
+            combobox_kelas.setValue(null);
+        }
+
+        /* =========================
+        DatePicker
+        ========================= */
+        if (datepicker_input_tanggal != null) {
+            datepicker_input_tanggal.setValue(null);
+        }
+
+        /* =========================
+        Hari RadioButtons
+        ========================= */
+        if (hari != null) {   // ToggleGroup for hari
+            hari.selectToggle(null);
+        }
+
+        // /* =========================
+        // Progresif / Transisi
+        // ========================= */
+        // if (progresifAtauTransisi != null) {
+        //     progresifAtauTransisi.selectToggle(null);
+        // }
     }
 
     // --- Utility: get day name from date string (yyyy-MM-dd) ---

@@ -228,13 +228,15 @@ public class pelatih_crud_controller implements Initializable {
             GradeData selectedGrade = combobox_nama_grade_keahlian == null ? null : combobox_nama_grade_keahlian.getValue();
             Integer idGrade = selectedGrade == null ? null : selectedGrade.getId_grade_keahlian();
 
-            String updateQuery = "UPDATE pelatih SET id_grade_keahlian = ?, nama_pelatih = ?, tanggal_lahir = ? WHERE id_pelatih = ?";
+            String updateQuery = "UPDATE pelatih SET id_grade_keahlian = ?, nama_pelatih = ?, tanggal_lahir = ?, honor = ? WHERE id_pelatih = ?";
             try (Connection conn = DriverManager.getConnection(DB_URL);
                  PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
                 if (idGrade != null) pstmt.setInt(1, idGrade); else pstmt.setNull(1, java.sql.Types.INTEGER);
                 pstmt.setString(2, textfield_nama_pelatih.getText());
                 pstmt.setString(3, datepicker_tanggal_lahir.getValue() == null ? null : datepicker_tanggal_lahir.getValue().toString());
-                pstmt.setInt(4, selectedPelatih.getId_pelatih());
+                pstmt.setString(4, textfield_nama_pelatih.getText());
+                pstmt.setInt(5, selectedPelatih.getId_pelatih());
+
                 pstmt.executeUpdate();
             } catch (SQLException er) {
                 er.printStackTrace();
@@ -242,11 +244,42 @@ public class pelatih_crud_controller implements Initializable {
             readDataPelatih(e);
         }
     }
+    private void setupSelectionListener() {
+        table_pelatih.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) {
+                // populate fields from selected row
+                // textfield_id_pelatih.setText(String.valueOf(newSel.getId_pelatih()));
+                textfield_nama_pelatih.setText(newSel.getNama_pelatih());
+
+                // safely set date
+                if (newSel.getTanggal_lahir() != null && !newSel.getTanggal_lahir().isEmpty()) {
+                    datepicker_tanggal_lahir.setValue(java.time.LocalDate.parse(newSel.getTanggal_lahir()));
+                } else {
+                    datepicker_tanggal_lahir.setValue(null);
+                }
+
+                // safely match grade
+                if (combobox_nama_grade_keahlian != null && combobox_nama_grade_keahlian.getItems() != null) {
+                    GradeData match = null;
+                    String gradeName = newSel.getNama_grade_keahlian();
+
+                    for (GradeData g : combobox_nama_grade_keahlian.getItems()) {
+                        if (gradeName != null && gradeName.equals(g.getNama_grade_keahlian())) {
+                            match = g;
+                            break;
+                        }
+                    }
+                    combobox_nama_grade_keahlian.setValue(match);
+                }
+            }
+        });
+    }
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         // load grade list first so combobox is ready
         loadComboBoxNamaGradeKeahlian(null);
         readDataPelatih(null);
+        setupSelectionListener();
     }
 }

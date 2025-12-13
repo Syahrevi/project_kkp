@@ -23,6 +23,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
         stage.getIcons().add(new Image("file:src/main/resources/harahap/images/icon.png"));
+        stage.setTitle("Sistem Manajemen Harahap");
 
     }
 

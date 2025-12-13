@@ -35,6 +35,8 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.converter.IntegerStringConverter;
+import javafx.collections.transformation.FilteredList;
+import java.time.YearMonth;
 
 
 public class laporan_gaji_controller implements javafx.fxml.Initializable {
@@ -85,6 +87,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
     @FXML private TableColumn<GajiPerJadwal,Integer> col_total_gaji;
     @FXML private TableColumn<GajiPerJadwal,Integer> col_harga_per_jam;
     @FXML private ObservableList<GajiPerJadwal> dataGajiPerJadwal = FXCollections.observableArrayList();
+    @FXML private FilteredList<GajiPerJadwal> filteredGajiPerJadwal;
 
     @FXML private javafx.scene.control.DatePicker dari_tanggal;
     @FXML private javafx.scene.control.DatePicker sampai_tanggal;
@@ -153,14 +156,36 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         col_harga_per_jam.setCellValueFactory(new PropertyValueFactory<>("harga_per_jam"));
 
         // Tab listeners
-        tab_hari.selectedProperty().addListener((obs, oldV, newV) -> { if (newV) readDataLaporanGajiHariIni(); });
-        tab_bulan.selectedProperty().addListener((obs, oldV, newV) -> { if (newV) readDataLaporanGajiBulan(); });
-        tab_tahun.selectedProperty().addListener((obs, oldV, newV) -> { if (newV) readDataLaporanGajiTahun(); });
+        tab_hari.setOnSelectionChanged(e -> {
+            if (tab_hari.isSelected()) {
+                applyFilterHariIni();
+                readDataLaporanGajiHariIni();
+            }
+        });
+
+        tab_bulan.setOnSelectionChanged(e -> {
+            if (tab_bulan.isSelected()) {
+                applyFilterBulanIni();
+                readDataLaporanGajiBulan();
+            }
+        });
+
+        tab_tahun.setOnSelectionChanged(e -> {
+            if (tab_tahun.isSelected()) {
+                applyFilterTahunIni();
+                readDataLaporanGajiTahun();
+            }
+        });
 
         INSTANCE = this;
 
         setupDateControls();
         loadGajiPerJadwal();
+        // -------------------------
+        // FilteredList for gaji_per_jadwal
+        // -------------------------
+        filteredGajiPerJadwal = new FilteredList<>(dataGajiPerJadwal, g -> true);
+        gaji_per_jadwal.setItems(filteredGajiPerJadwal);
 
         
         // enable editing on the TableView
@@ -226,48 +251,49 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                 updateTotalInDatabaseWithRefresh(row.getId_jadwal(), newTotal, oldTotal);
             });
         }
+        
     }
-        private void updateJamInDatabase(int idJadwal, int jamValue) {
-            Task<Void> t = new Task<>() {
-                @Override
-                protected Void call() throws Exception {
-                    String sql = "UPDATE jadwal SET total_jam = ? WHERE id_jadwal = ?";
-                    try (Connection conn = DriverManager.getConnection(DB_URL);
-                        PreparedStatement ps = conn.prepareStatement(sql)) {
-                        ps.setInt(1, jamValue);
-                        ps.setInt(2, idJadwal);
-                        ps.executeUpdate();
-                    }
-                    return null;
-                }
+    // -------------------------
+// gaji_per_jadwal filters
+// -------------------------
 
-                @Override
-                protected void succeeded() {
-                    Platform.runLater(() -> {
-                        // reload per-jadwal list (preserves current date filter)
-                        loadGajiPerJadwal();
-
-                        // refresh aggregates so day/month/year tables reflect the updated jam
-                        readDataLaporanGajiHariIni();
-                        readDataLaporanGajiBulan();
-                        readDataLaporanGajiTahun();
-                    });
-                }
-
-                @Override
-                protected void failed() {
-                    Platform.runLater(() -> {
-                        // reload to revert UI to DB state
-                        loadGajiPerJadwal();
-                        readDataLaporanGajiHariIni();
-                        readDataLaporanGajiBulan();
-                        readDataLaporanGajiTahun();
-                    });
-                    getException().printStackTrace();
-                }
-            };
-            new Thread(t).start();
+private void applyFilterHariIni() {
+    LocalDate today = LocalDate.now();
+    filteredGajiPerJadwal.setPredicate(g -> {
+        try {
+            return LocalDate.parse(g.getTanggal()).isEqual(today);
+        } catch (Exception e) {
+            return false;
         }
+    });
+}
+
+private void applyFilterBulanIni() {
+    YearMonth now = YearMonth.now();
+    filteredGajiPerJadwal.setPredicate(g -> {
+        try {
+            LocalDate d = LocalDate.parse(g.getTanggal());
+            return YearMonth.from(d).equals(now);
+        } catch (Exception e) {
+            return false;
+        }
+    });
+}
+
+    private void applyFilterTahunIni() {
+        int year = LocalDate.now().getYear();
+        filteredGajiPerJadwal.setPredicate(g -> {
+            try {
+                return LocalDate.parse(g.getTanggal()).getYear() == year;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    private void clearGajiFilter() {
+        filteredGajiPerJadwal.setPredicate(g -> true);
+    }
 
     private void updateTotalInDatabaseWithRefresh(int idJadwal, int totalGajiValue, int oldTotal) {
         Task<Void> t = new Task<>() {
@@ -441,41 +467,37 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     }
 
                     double durationHours = 0.0;
-                    if (start != null && end != null) {
-                        Duration dur = Duration.between(start, end);
-                        if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
-                        durationHours = dur.toMinutes() / 60.0;
-                    }
+                        if (start != null && end != null) {
+                            Duration dur = Duration.between(start, end);
+                            if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
+                            durationHours = dur.toMinutes() / 60.0;
+                        }
 
+                    int fullHours = (int) Math.floor(durationHours);
                     int jamRounded;
                     int totalGajiRounded;
 
                     if (dbTotalGajiObj != null) {
                         // Use DB-stored authoritative values when present
                         totalGajiRounded = dbTotalGajiObj;
-                        jamRounded = dbTotalJamObj != null ? dbTotalJamObj : (int) Math.round(durationHours);
+                        jamRounded = dbTotalJamObj != null ? dbTotalJamObj : fullHours;
                     } else {
-                        // compute as before
                         double hargaPerHour = hargaObj != null ? hargaObj.doubleValue() : 0.0;
-                        double rawTotal = durationHours * hargaPerHour;
+                        double rawTotal = fullHours * hargaPerHour; // use fullHours
                         boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
                         double finalTotal = honorYes ? rawTotal * 0.5 : rawTotal;
 
-                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
                         boolean siswaTidakHadir = kehadiranSiswa != null &&
                             (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
 
-                        // Pelatih ALFA => zero (highest precedence)
                         if (kehadiran != null && kehadiran.equalsIgnoreCase("alfa")) {
                             finalTotal = 0.0;
-                        }
-                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
-                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiran)) {
+                        } else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiran)) {
                             finalTotal = 25000.0;
                         }
 
                         totalGajiRounded = (int) Math.round(finalTotal);
-                        jamRounded = (int) Math.round(durationHours);
+                        jamRounded = fullHours;
                     }
 
                     String tanggal = rs.getString("tanggal");
@@ -516,7 +538,11 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
             reset_tanggal.setOnAction(e -> {
                 if (dari_tanggal != null) dari_tanggal.setValue(null);
                 if (sampai_tanggal != null) sampai_tanggal.setValue(null);
-                loadGajiPerJadwal(); // no filter
+
+                // clear all filters → show all data
+                if (filteredGajiPerJadwal != null) {
+                    filteredGajiPerJadwal.setPredicate(g -> true);
+                }
             });
         }
 
@@ -750,38 +776,35 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     }
 
                     double durationHours = 0.0;
-                    if (start != null && end != null) {
-                        Duration dur = Duration.between(start, end);
-                        if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
-                        durationHours = dur.toMinutes() / 60.0;
-                    }
+                        if (start != null && end != null) {
+                            Duration dur = Duration.between(start, end);
+                            if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
+                            durationHours = dur.toMinutes() / 60.0;
+                        }
 
+                    int fullHours = (int) Math.floor(durationHours);
                     double rowTotal;
                     int jamForRow;
 
                     if (dbTotalGaji != null) {
-                        // Use DB-stored authoritative values when present
                         rowTotal = dbTotalGaji.doubleValue();
-                        jamForRow = dbTotalJam != null ? dbTotalJam : (int) Math.round(durationHours);
+                        jamForRow = dbTotalJam != null ? dbTotalJam : fullHours;
                     } else {
-                        // compute as before
-                        rowTotal = durationHours * (double) hargaPerJam;
-                        if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+                        double raw = fullHours * (double) hargaPerJam;
+                        boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
+                        double finalTotal = honorYes ? raw * 0.5 : raw;
 
-                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
                         boolean siswaTidakHadir = kehadiranSiswa != null &&
                             (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
 
-                        // Pelatih ALFA => zero (highest precedence)
-                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
-                            rowTotal = 0.0;
-                        }
-                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
-                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
-                            rowTotal = 25000.0;
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("alfa")) {
+                            finalTotal = 0.0;
+                        } else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            finalTotal = 25000.0;
                         }
 
-                        jamForRow = (int) Math.round(durationHours);
+                        rowTotal = finalTotal;
+                        jamForRow = fullHours;
                     }
 
                     Acc a = accum.get(idPelatih);
@@ -870,38 +893,35 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
                     }
 
                     double durationHours = 0.0;
-                    if (start != null && end != null) {
-                        Duration dur = Duration.between(start, end);
-                        if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
-                        durationHours = dur.toMinutes() / 60.0;
-                    }
-
+                        if (start != null && end != null) {
+                            Duration dur = Duration.between(start, end);
+                            if (dur.isNegative() || dur.isZero()) dur = Duration.between(start, end.plusHours(24));
+                            durationHours = dur.toMinutes() / 60.0;
+                        }
+                    
+                    int fullHours = (int) Math.floor(durationHours);
                     double rowTotal;
                     int jamForRow;
 
                     if (dbTotalGaji != null) {
-                        // Use DB-stored authoritative values when present
                         rowTotal = dbTotalGaji.doubleValue();
-                        jamForRow = dbTotalJam != null ? dbTotalJam : (int) Math.round(durationHours);
+                        jamForRow = dbTotalJam != null ? dbTotalJam : fullHours;
                     } else {
-                        // compute as before
-                        rowTotal = durationHours * (double) hargaPerJam;
-                        if (honor != null && honor.equalsIgnoreCase("ya")) rowTotal *= 0.5;
+                        double raw = fullHours * (double) hargaPerJam;
+                        boolean honorYes = honor != null && honor.equalsIgnoreCase("ya");
+                        double finalTotal = honorYes ? raw * 0.5 : raw;
 
-                        // interpret siswa absence: treat TIDAK_HADIR or ALFA as "siswa tidak hadir"
                         boolean siswaTidakHadir = kehadiranSiswa != null &&
                             (kehadiranSiswa.equalsIgnoreCase("TIDAK_HADIR") || kehadiranSiswa.equalsIgnoreCase("ALFA"));
 
-                        // Pelatih ALFA => zero (highest precedence)
-                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("ALFA")) {
-                            rowTotal = 0.0;
-                        }
-                        // Override rule: siswa tidak hadir but pelatih hadir => fixed 25000
-                        else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
-                            rowTotal = 25000.0;
+                        if (kehadiranPelatih != null && kehadiranPelatih.equalsIgnoreCase("alfa")) {
+                            finalTotal = 0.0;
+                        } else if (siswaTidakHadir && "HADIR".equalsIgnoreCase(kehadiranPelatih)) {
+                            finalTotal = 25000.0;
                         }
 
-                        jamForRow = (int) Math.round(durationHours);
+                        rowTotal = finalTotal;
+                        jamForRow = fullHours;
                     }
 
                     Acc a = accum.get(idPelatih);
@@ -962,53 +982,71 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
         else tableToExport = table_jadwal_laporan3;
 
         try {
-            exportTableToExcel(tableToExport, file);
+            exportTablesToExcel(
+                tableToExport,
+                gaji_per_jadwal,
+                file
+            );
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private void exportTableToExcel(TableView<?> table, File file) throws Exception {
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            XSSFSheet sheet = workbook.createSheet("Laporan");
+    private void exportTablesToExcel(
+        TableView<?> laporanTable,
+        TableView<?> gajiPerJadwalTable,
+        File file
+        ) throws Exception {
 
-            // Header
+            try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+
+                // Sheet 1: Laporan (Hari / Bulan / Tahun)
+                XSSFSheet laporanSheet = workbook.createSheet("Laporan");
+                writeTableToSheet(laporanTable, laporanSheet);
+
+                // Sheet 2: Gaji Per Jadwal
+                XSSFSheet gajiSheet = workbook.createSheet("Gaji Per Jadwal");
+                writeTableToSheet(gajiPerJadwalTable, gajiSheet);
+
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    workbook.write(fos);
+                }
+            }
+        }
+        private void writeTableToSheet(TableView<?> table, XSSFSheet sheet) {
+            // Header row
             Row headerRow = sheet.createRow(0);
             int colCount = table.getColumns().size();
+
             for (int c = 0; c < colCount; c++) {
                 TableColumn<?, ?> col = table.getColumns().get(c);
                 Cell cell = headerRow.createCell(c);
-                String headerText = col.getText() != null ? col.getText() : ("Column " + (c + 1));
-                cell.setCellValue(headerText);
+                cell.setCellValue(col.getText() != null ? col.getText() : "");
             }
 
             // Data rows
             int rowIndex = 1;
-            int rowCount = table.getItems().size();
-            for (int r = 0; r < rowCount; r++) {
+            for (int r = 0; r < table.getItems().size(); r++) {
                 Row row = sheet.createRow(rowIndex++);
                 for (int c = 0; c < colCount; c++) {
-                    TableColumn<?, ?> col = table.getColumns().get(c);
-                    Object cellValue = col.getCellData(r);
+                    Object value = table.getColumns().get(c).getCellData(r);
                     Cell cell = row.createCell(c);
-                    if (cellValue == null) {
+
+                    if (value == null) {
                         cell.setCellValue("");
-                    } else if (cellValue instanceof Number) {
-                        cell.setCellValue(((Number) cellValue).doubleValue());
+                    } else if (value instanceof Number) {
+                        cell.setCellValue(((Number) value).doubleValue());
                     } else {
-                        cell.setCellValue(cellValue.toString());
+                        cell.setCellValue(value.toString());
                     }
                 }
             }
 
-            // Autosize columns (best-effort)
-            for (int c = 0; c < colCount; c++) sheet.autoSizeColumn(c);
-
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                workbook.write(fos);
+            // Auto-size columns
+            for (int c = 0; c < colCount; c++) {
+                sheet.autoSizeColumn(c);
             }
         }
-    }
 
     // Placeholder for print action (if you want to implement printing)
     public void printLaporanGaji(ActionEvent e) {

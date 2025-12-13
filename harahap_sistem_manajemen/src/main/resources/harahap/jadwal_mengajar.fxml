@@ -29,18 +29,18 @@
          <children>
             <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
             <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
-            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT TIM SISWA" />
+            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="NAMA CABANG" />
          </children>
       </VBox>
       <TableView fx:id="table_jadwal_mengajar" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="791.0">
         <columns>
           <TableColumn fx:id="col_id_jadwal" prefWidth="60.0" text="ID jadwal" />
-            <TableColumn fx:id="col_nama_pelatih" prefWidth="81.0" text="Nama Pelatih" />
-            <TableColumn fx:id="col_nama_tim" prefWidth="65.0" text="Nama Tim" />
-            <TableColumn fx:id="col_nama_kelas" prefWidth="160.0" text="Kelas" />
-            <TableColumn fx:id="col_tanggal" prefWidth="53.0" text="Tanggal" />
-          <TableColumn fx:id="col_waktu_mulai" prefWidth="82.0" text="Waktu Mulai" />
-            <TableColumn fx:id="col_waktu_selesai" prefWidth="86.0" text="Waktu Selesai" />
+            <TableColumn fx:id="col_nama_pelatih" prefWidth="48.0" text="Pelatih" />
+            <TableColumn fx:id="col_nama_tim" prefWidth="83.0" text="Cabang" />
+            <TableColumn fx:id="col_nama_kelas" prefWidth="108.0" text="Kelas" />
+            <TableColumn fx:id="col_tanggal" prefWidth="103.0" text="Tanggal" />
+          <TableColumn fx:id="col_waktu_mulai" prefWidth="92.0" text="Waktu Mulai" />
+            <TableColumn fx:id="col_waktu_selesai" prefWidth="93.0" text="Waktu Selesai" />
             <TableColumn fx:id="col_kehadiran_pelatih" onEditStart="#editKehadiranPelatih" prefWidth="105.0" text="Kehadiran Pelatih" />
             <TableColumn fx:id="col_kehadiran_siswa" onEditStart="#editKehadiranSiswa" prefWidth="98.0" text="Kehadiran Siswa" />
         </columns>
@@ -56,8 +56,8 @@
                         <Label layoutX="14.0" layoutY="64.0" prefHeight="17.0" prefWidth="71.0" text="Nama Siswa" />
                         <ComboBox fx:id="combobox_input_nama_tim" layoutX="14.0" layoutY="81.0" prefHeight="25.0" prefWidth="148.0" />
                         
-                        <Button fx:id="button_input_submit" layoutX="16.0" layoutY="497.0" mnemonicParsing="false" onAction="#submitJadwalForm" text="SUBMIT" />
-                        <Button fx:id="button_input_reset" layoutX="80.0" layoutY="497.0" mnemonicParsing="false" onAction="#resetJadwalForm" text="RESET" />
+                        <Button fx:id="button_input_submit" layoutX="14.0" layoutY="495.0" mnemonicParsing="false" onAction="#submitJadwalForm" text="SUBMIT" />
+                        <Button fx:id="button_input_reset" layoutX="78.0" layoutY="495.0" mnemonicParsing="false" onAction="#resetJadwalForm" text="RESET" />
                         <Label layoutX="15.0" layoutY="155.0" text="Jam Masuk" />
                         <Label layoutX="96.0" layoutY="158.0" text="Menit Masuk" />
                         <Label layoutX="96.0" layoutY="197.0" text="Menit Selesai" />
@@ -127,9 +127,10 @@
                               </Button>
                            </children>
                         </VBox>
-                        <Button fx:id="button_input_edit" layoutX="137.0" layoutY="497.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
-                        <Button fx:id="button_input_delete" layoutX="183.0" layoutY="497.0" mnemonicParsing="false" onAction="#delete" text="DELETE" />
-                        <ComboBox fx:id="combobox_kelas" layoutX="167.0" layoutY="33.0" prefHeight="25.0" prefWidth="140.0" promptText="Kelas" />
+                        <Button fx:id="button_input_edit" layoutX="135.0" layoutY="495.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
+                        <Button fx:id="button_input_delete" layoutX="181.0" layoutY="495.0" mnemonicParsing="false" onAction="#delete" text="DELETE" />
+                        <ComboBox fx:id="combobox_kelas" layoutX="167.0" layoutY="33.0" prefHeight="25.0" prefWidth="140.0" />
+                        <Label layoutX="167.0" layoutY="15.0" text="Kelas" />
                      </children>
                   </AnchorPane>
               </content>

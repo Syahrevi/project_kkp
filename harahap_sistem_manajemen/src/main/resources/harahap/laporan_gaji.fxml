@@ -88,13 +88,13 @@
       <TableView fx:id="gaji_per_jadwal" layoutX="737.0" layoutY="72.0" prefHeight="703.0" prefWidth="529.0">
          <columns>
             <TableColumn fx:id="col_id_jadwal_gaji" prefWidth="60.0" text="ID Jadwal" />
-            <TableColumn fx:id="col_nama_pelatih_gaji" prefWidth="81.0" text="Nama Pelatih" />
-            <TableColumn fx:id="col_grade_keahlian_gaji" prefWidth="89.0" text="Grade keahlian" />
-            <TableColumn fx:id="col_nama_kelas_gaji" prefWidth="46.0" text="Kelas" />
-            <TableColumn fx:id="col_tanggal_gaji" prefWidth="51.0" text="Tanggal" />
-            <TableColumn fx:id="col_jam_gaji" minWidth="0.0" prefWidth="35.0" text="Jam" />
-            <TableColumn fx:id="col_total_gaji" prefWidth="66.0" text="Total Gaji" />
-            <TableColumn fx:id="col_harga_per_jam" prefWidth="75.0" text="Harga/Jam" />
+            <TableColumn fx:id="col_nama_pelatih_gaji" prefWidth="81.0" text="Nama" />
+            <TableColumn fx:id="col_grade_keahlian_gaji" prefWidth="39.0" text="Grade" />
+            <TableColumn fx:id="col_nama_kelas_gaji" prefWidth="96.0" text="Kelas" />
+            <TableColumn fx:id="col_tanggal_gaji" prefWidth="94.0" text="Tanggal" />
+            <TableColumn fx:id="col_jam_gaji" minWidth="0.0" prefWidth="30.0" text="Jam" />
+            <TableColumn fx:id="col_total_gaji" prefWidth="59.0" text="Total Gaji" />
+            <TableColumn fx:id="col_harga_per_jam" prefWidth="69.0" text="Harga/Jam" />
          </columns>
       </TableView>
       <Button fx:id="tanggal_sekarang" layoutX="576.0" layoutY="173.0" mnemonicParsing="false" text="Tanggal Sekarang" />

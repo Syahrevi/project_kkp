@@ -22,14 +22,13 @@
       </VBox>
       <TableView fx:id="table_siswa" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="679.0">
          <columns>
-            <TableColumn fx:id="col_id_siswa" prefWidth="79.0" text="ID Siswa" />
-            <TableColumn fx:id="col_nama_tim" prefWidth="159.0" text="Nama Tim" />
-            <TableColumn fx:id="col_nama_siswa" prefWidth="194.0" text="Nama Siswa" />
-            <TableColumn fx:id="col_tanggal_lahir" minWidth="0.0" prefWidth="135.0" text="Tanggal Lahir" />
-            <TableColumn fx:id="col_kategori" prefWidth="111.0" text="Kategori" />
+            <TableColumn fx:id="col_id_siswa" prefWidth="32.0" text="ID" />
+            <TableColumn fx:id="col_nama_tim" prefWidth="232.0" text="Cabang" />
+            <TableColumn fx:id="col_nama_siswa" prefWidth="204.0" text="Nama Siswa" />
+            <TableColumn fx:id="col_tanggal_lahir" minWidth="0.0" prefWidth="210.0" text="Tanggal Lahir" />
          </columns>
       </TableView>
-      <TitledPane layoutX="835.0" layoutY="14.0" prefHeight="267.0" prefWidth="424.0">
+      <TitledPane layoutX="835.0" layoutY="14.0" prefHeight="194.0" prefWidth="424.0">
          <content>
             <AnchorPane prefHeight="344.0" prefWidth="422.0">
                <children>
@@ -37,13 +36,11 @@
                   <Label layoutX="14.0" layoutY="57.0" text="Nama Siswa" />
                   <Label layoutX="14.0" layoutY="99.0" text="Tanggal Lahir" />
                   <DatePicker fx:id="datepicker_tanggal_lahir" layoutX="14.0" layoutY="116.0" />
-                  <ComboBox fx:id="combobox_kategori" layoutX="14.0" layoutY="161.0" prefHeight="25.0" prefWidth="175.0" />
-                  <Label layoutX="14.0" layoutY="141.0" text="Kategori" />
-                  <Button fx:id="button_submit" layoutX="14.0" layoutY="225.0" mnemonicParsing="false" onAction="#submit" text="SUBMIT" />
-                  <Button fx:id="button_reset" layoutX="72.0" layoutY="225.0" mnemonicParsing="false" onAction="#reset" text="RESET" />
-                  <Button fx:id="button_hapus" layoutX="160.0" layoutY="225.0" mnemonicParsing="false" onAction="#delete" text="HAPUS" />
-                  <Button fx:id="button_edit" layoutX="120.0" layoutY="225.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
-                  <Label layoutX="16.0" layoutY="15.0" text="Nama Tim" />
+                  <Button fx:id="button_submit" layoutX="14.0" layoutY="149.0" mnemonicParsing="false" onAction="#submit" text="SUBMIT" />
+                  <Button fx:id="button_reset" layoutX="72.0" layoutY="149.0" mnemonicParsing="false" onAction="#reset" text="RESET" />
+                  <Button fx:id="button_hapus" layoutX="160.0" layoutY="149.0" mnemonicParsing="false" onAction="#delete" text="HAPUS" />
+                  <Button fx:id="button_edit" layoutX="120.0" layoutY="149.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
+                  <Label layoutX="16.0" layoutY="15.0" text="Nama Cabang" />
                   <ComboBox fx:id="combobox_nama_tim" layoutX="16.0" layoutY="32.0" prefHeight="25.0" prefWidth="173.0" />
                </children>
             </AnchorPane>

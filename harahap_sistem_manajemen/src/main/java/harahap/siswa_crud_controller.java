@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -32,13 +33,13 @@ public class siswa_crud_controller implements Initializable {
     @FXML private TableColumn<siswa_crud, String> col_nama_tim;
     @FXML private TableColumn<siswa_crud, String> col_nama_siswa;
     @FXML private TableColumn<siswa_crud, String> col_tanggal_lahir;
-    @FXML private TableColumn<siswa_crud, String> col_kategori;
+    // @FXML private TableColumn<siswa_crud, String> col_kategori;
 
     // @FXML private TextField textfield_id_siswa;
     @FXML private ComboBox<String> combobox_nama_tim;
     @FXML private TextField textfield_nama_siswa;
     @FXML private DatePicker datepicker_tanggal_lahir;
-    @FXML private ComboBox<String> combobox_kategori;
+    // @FXML private ComboBox<String> combobox_kategori;
 
     @FXML private Button button_hapus;
     @FXML private Button button_edit;
@@ -75,19 +76,18 @@ public class siswa_crud_controller implements Initializable {
         col_nama_tim.setCellValueFactory(new PropertyValueFactory<>("nama_tim"));
         col_nama_siswa.setCellValueFactory(new PropertyValueFactory<>("nama_siswa"));
         col_tanggal_lahir.setCellValueFactory(new PropertyValueFactory<>("tanggal_lahir"));
-        col_kategori.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+        // col_kategori.setCellValueFactory(new PropertyValueFactory<>("kategori"));
         
         data.clear();
         String DB_URL = "jdbc:sqlite:database/harahap.db";
         try (Connection conn = DriverManager.getConnection(DB_URL);
-            ResultSet rs = conn.createStatement().executeQuery("Select siswa.id_siswa, nama_tim, nama_siswa, tanggal_lahir, kategori from siswa, tim_siswa where siswa.id_tim = tim_siswa.id_tim")) {
+            ResultSet rs = conn.createStatement().executeQuery("Select siswa.id_siswa, nama_tim, nama_siswa, tanggal_lahir from siswa, tim_siswa where siswa.id_tim = tim_siswa.id_tim")) {
             while (rs.next()) {
                 data.add(new siswa_crud(
                     rs.getInt(1),
                     rs.getString(2),
                     rs.getString(3),
-                    rs.getString(4),
-                    rs.getString(5)
+                    rs.getString(4)
                 ));
             }
         } catch (Exception er) {
@@ -112,10 +112,10 @@ public class siswa_crud_controller implements Initializable {
             System.err.println("Error: Pilih tanggal lahir!");
             return;
         }
-        if (combobox_kategori.getValue() == null || combobox_kategori.getValue().isEmpty()) {
-            System.err.println("Error: Pilih kategori!");
-            return;
-        }
+        // if (combobox_kategori.getValue() == null || combobox_kategori.getValue().isEmpty()) {
+        //     System.err.println("Error: Pilih kategori!");
+        //     return;
+        // }
         
         // Get id_tim from nama_tim
         Integer id_tim = null;
@@ -138,13 +138,13 @@ public class siswa_crud_controller implements Initializable {
         }
         
         // Insert siswa
-        String insertQuery = "INSERT INTO siswa (id_tim, nama_siswa, tanggal_lahir, kategori) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO siswa (id_tim, nama_siswa, tanggal_lahir) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
             pstmt.setInt(1, id_tim);
             pstmt.setString(2, textfield_nama_siswa.getText());
             pstmt.setString(3, datepicker_tanggal_lahir.getValue().toString());
-            pstmt.setString(4, combobox_kategori.getValue().toString());
+            // pstmt.setString(4, combobox_kategori.getValue().toString());
             pstmt.executeUpdate();
             System.out.println("Siswa berhasil ditambahkan!");
         } catch (SQLException er) {
@@ -156,13 +156,13 @@ public class siswa_crud_controller implements Initializable {
         reset(e);
     }
 
-    public void loadComboBoxNamakategori(ActionEvent e){
-        ObservableList<String> kategoriList = FXCollections.observableArrayList();
-        kategoriList.add("Pemula");
-        kategoriList.add("Sedang");
-        kategoriList.add("Tinggi");
-        combobox_kategori.setItems(kategoriList);
-    }
+    // public void loadComboBoxNamakategori(ActionEvent e){
+    //     ObservableList<String> kategoriList = FXCollections.observableArrayList();
+    //     kategoriList.add("Pemula");
+    //     kategoriList.add("Sedang");
+    //     kategoriList.add("Tinggi");
+    //     combobox_kategori.setItems(kategoriList);
+    // }
     
     public void loadComboBoxNamaTim(ActionEvent e){
         String DB_URL = "jdbc:sqlite:database/harahap.db";
@@ -182,7 +182,7 @@ public class siswa_crud_controller implements Initializable {
     public void reset(ActionEvent e){
         textfield_nama_siswa.clear();
         datepicker_tanggal_lahir.setValue(null);
-        combobox_kategori.setValue(null);
+        // combobox_kategori.setValue(null);
         combobox_nama_tim.setValue(null);
     }
     @FXML 
@@ -218,10 +218,10 @@ public class siswa_crud_controller implements Initializable {
                 System.err.println("Error: Pilih tanggal lahir!");
                 return;
             }
-            if (combobox_kategori.getValue() == null || combobox_kategori.getValue().isEmpty()) {
-                System.err.println("Error: Pilih kategori!");
-                return;
-            }
+            // if (combobox_kategori.getValue() == null || combobox_kategori.getValue().isEmpty()) {
+            //     System.err.println("Error: Pilih kategori!");
+            //     return;
+            // }
             
             String DB_URL = "jdbc:sqlite:database/harahap.db";
             
@@ -246,14 +246,14 @@ public class siswa_crud_controller implements Initializable {
             }
             
             // Update siswa
-            String updateQuery = "UPDATE siswa SET id_tim = ?, nama_siswa = ?, tanggal_lahir = ?, kategori = ? WHERE id_siswa = ?";
+            String updateQuery = "UPDATE siswa SET id_tim = ?, nama_siswa = ?, tanggal_lahir = ? WHERE id_siswa = ?";
             try (Connection conn = DriverManager.getConnection(DB_URL);
                  PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
                 pstmt.setInt(1, id_tim);
                 pstmt.setString(2, textfield_nama_siswa.getText());
                 pstmt.setString(3, datepicker_tanggal_lahir.getValue().toString());
-                pstmt.setString(4, combobox_kategori.getValue().toString());
-                pstmt.setInt(5, selectedSiswa.getId_siswa());
+                // pstmt.setString(4, combobox_kategori.getValue().toString());
+                pstmt.setInt(4, selectedSiswa.getId_siswa());
                 pstmt.executeUpdate();
                 System.out.println("Siswa berhasil diperbarui!");
             } catch (SQLException er) {
@@ -265,11 +265,22 @@ public class siswa_crud_controller implements Initializable {
             reset(e);
         }
     }
+    private void setupSelectionListener() {
+        table_siswa.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                // populate fields
+                combobox_nama_tim.setValue(newSelection.getNama_tim());
+                textfield_nama_siswa.setText(newSelection.getNama_siswa());
+                datepicker_tanggal_lahir.setValue(LocalDate.parse(newSelection.getTanggal_lahir()));
+            }
+        });
+    }
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         readDataSiswa(null);
-        loadComboBoxNamakategori(null);
+        // loadComboBoxNamakategori(null);
         loadComboBoxNamaTim(null);
+        setupSelectionListener();
     }
 }
