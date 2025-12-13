@@ -17,14 +17,13 @@
          <children>
             <Button fx:id="button_jadwal_mengajar" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
             <Button fx:id="button_laporan_gaji" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
          </children>
       </VBox>
       <VBox layoutX="24.0" layoutY="476.0" prefHeight="267.0" prefWidth="132.0">
          <children>
             <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
             <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
-            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT TIM SISWA" />
+            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT CABANG" />
          </children>
       </VBox>
       <TabPane layoutX="167.0" layoutY="28.0" prefHeight="727.0" prefWidth="341.0" tabClosingPolicy="UNAVAILABLE">
@@ -81,11 +80,11 @@
       </TabPane>
       <Button fx:id="print_laporan" layoutX="576.0" layoutY="242.0" mnemonicParsing="false" onAction="#handlePrintLaporan" prefHeight="25.0" prefWidth="111.0" text="Print Laporan" />
       <Accordion layoutX="508.0" layoutY="14.0" />
-      <DatePicker fx:id="dari_tanggal" layoutX="544.0" layoutY="100.0" />
+      <DatePicker fx:id="dari_tanggal" layoutX="544.0" layoutY="100.0" prefHeight="25.0" prefWidth="174.0" />
       <Label layoutX="546.0" layoutY="83.0" text="Filter Dari Tanggal" />
-      <DatePicker fx:id="sampai_tanggal" layoutX="544.0" layoutY="139.0" />
+      <DatePicker fx:id="sampai_tanggal" layoutX="544.0" layoutY="139.0" prefHeight="25.0" prefWidth="174.0" />
       <Label layoutX="546.0" layoutY="125.0" text="Sampai Tanggal" />
-      <TableView fx:id="gaji_per_jadwal" layoutX="737.0" layoutY="72.0" prefHeight="703.0" prefWidth="529.0">
+      <TableView fx:id="gaji_per_jadwal" layoutX="737.0" layoutY="72.0" prefHeight="683.0" prefWidth="529.0">
          <columns>
             <TableColumn fx:id="col_id_jadwal_gaji" prefWidth="60.0" text="ID Jadwal" />
             <TableColumn fx:id="col_nama_pelatih_gaji" prefWidth="81.0" text="Nama" />
@@ -99,5 +98,7 @@
       </TableView>
       <Button fx:id="tanggal_sekarang" layoutX="576.0" layoutY="173.0" mnemonicParsing="false" text="Tanggal Sekarang" />
       <Button fx:id="reset_tanggal" layoutX="576.0" layoutY="207.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="111.0" text="Reset" />
+      <Button layoutX="576.0" layoutY="276.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="111.0" text="Print Laporan" />
+      <Label layoutX="544.0" layoutY="308.0" prefHeight="125.0" prefWidth="174.0" text="Jika Terjadi Situasi Dimana Total Gaji Harus Berubah(Contoh Kelas Transisi &amp; Semi-Progresif), Maka Klik 2 Kali Di Kolom Yang Ingin Diubah Untuk Mengubah Total Gaji Di Table Kanan " wrapText="true" />
    </children>
 </AnchorPane>

@@ -15,7 +15,6 @@
          <children>
             <Button fx:id="button_jadwal_mengajar1" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
             <Button fx:id="button_laporan_gaji" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
          </children>
       </VBox>
       <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">
