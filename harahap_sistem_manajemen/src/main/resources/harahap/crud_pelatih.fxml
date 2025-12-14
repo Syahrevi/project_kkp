@@ -9,36 +9,44 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.pelatih_crud_controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1250.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.pelatih_crud_controller">
    <children>
-      <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">
-         <children>
-            <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
-            <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
-            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="INPUT CABANG" />
-         </children>
-      </VBox>
-      <TableView fx:id="table_pelatih" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="679.0">
+      <ImageView fitHeight="800.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/background.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="85.0" fitWidth="300.0" layoutX="22.0" layoutY="35.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Logo.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="56.0" fitWidth="900.0" layoutX="338.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Rectangle%202.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="button_crud_pelatih" layoutX="815.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="INPUT PELATIH" />
+      <Button fx:id="button_crud_siswa" layoutX="580.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="35.0" prefWidth="88.0" style="-fx-background-radius: 100px;" text="INPUT SISWA" />
+      <Button fx:id="button_crud_tim_siswa" layoutX="685.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="35.0" prefWidth="113.0" style="-fx-background-radius: 100px;" text="INPUT CABANG" />
+      <TableView fx:id="table_pelatih" layoutX="22.0" layoutY="153.0" prefHeight="627.0" prefWidth="949.0">
          <columns>
             <TableColumn fx:id="col_id_pelatih" prefWidth="79.0" text="ID Pelatih" />
-            <TableColumn fx:id="col_nama_pelatih" prefWidth="93.0" text="Nama Pelatih" />
-            <TableColumn fx:id="col_nama_grade_keahlian" prefWidth="134.0" text="Nama Grade Keahlian" />
-            <TableColumn fx:id="col_tanggal_lahir" prefWidth="91.0" text="Tanggal Lahir" />
-            <TableColumn fx:id="col_status_honor" prefWidth="96.0" text="Status Honor" />
+            <TableColumn fx:id="col_nama_pelatih" prefWidth="447.0" text="Nama Pelatih" />
+            <TableColumn fx:id="col_nama_grade_keahlian" prefWidth="171.0" text="Nama Grade Keahlian" />
+            <TableColumn fx:id="col_tanggal_lahir" prefWidth="123.0" text="Tanggal Lahir" />
+            <TableColumn fx:id="col_status_honor" prefWidth="128.0" text="Status Honor" />
          </columns>
       </TableView>
-      <VBox layoutX="14.0" layoutY="38.0" prefHeight="206.0" prefWidth="132.0">
-         <children>
-            <Button fx:id="button_jadwal_mengajar1" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
-            <Button fx:id="button_laporan_gaji" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
-         </children>
-      </VBox>
+      <Button fx:id="button_jadwal_mengajar1" layoutX="355.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="35.0" prefWidth="126.0" style="-fx-background-radius: 100px;" text="JADWAL MENGAJAR" />
+      <Button fx:id="button_laporan_gaji" layoutX="1111.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="LAPORAN GAJI" />
+      <Button fx:id="button_absensi" layoutX="500.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="35.0" prefWidth="67.0" style="-fx-background-radius: 100px;" text="ABSENSI" />
       <Accordion layoutX="862.0" layoutY="267.0" />
-      <TitledPane layoutX="836.0" layoutY="15.0" prefHeight="253.0" prefWidth="235.0" text="Setting">
+      <TitledPane layoutX="985.0" layoutY="153.0" prefHeight="425.0" prefWidth="198.0" text="Setting">
          <content>
             <AnchorPane prefHeight="227.0" prefWidth="312.0">
                <children>

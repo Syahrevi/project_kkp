@@ -35,18 +35,35 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.login_controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.login_controller">
   <children>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="662.0" prefWidth="590.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="692.0" minWidth="1181.0" prefHeight="800.0" prefWidth="1200.0" VBox.vgrow="NEVER">
       <children>
-            <Label alignment="CENTER" layoutX="609.0" layoutY="198.0" prefHeight="17.0" prefWidth="64.0" text="Name" />
-            <TextField fx:id="textfield_nama" layoutX="565.0" layoutY="215.0" prefHeight="25.0" prefWidth="149.0" />
-            <Label layoutX="615.0" layoutY="245.0" text="Password" />
-            <TextField fx:id="textfield_password" layoutX="565.0" layoutY="262.0" prefHeight="25.0" prefWidth="149.0" />
-            <Button fx:id="button_login" layoutX="609.0" layoutY="295.0" mnemonicParsing="false" onAction="#handle_login" prefHeight="25.0" prefWidth="64.0" text="Sign In" />
+            <ImageView fitHeight="800.0" fitWidth="1200.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/bg1.jpg" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="535.0" fitWidth="375.0" layoutX="413.0" layoutY="144.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/Login_Background.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="85.0" fitWidth="242.0" layoutX="464.0" layoutY="207.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/Logo.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="487.0" layoutY="325.0" prefHeight="17.0" prefWidth="58.0" text="Username" textFill="WHITE" />
+            <TextField fx:id="textfield_nama" layoutX="487.0" layoutY="353.0" prefHeight="25.0" prefWidth="193.0" style="-fx-background-radius: 100px; -fx-background-color: 00353e;" />
+            <Label layoutX="491.0" layoutY="393.0" text="Password" textFill="WHITE" />
+            <TextField fx:id="textfield_password" layoutX="487.0" layoutY="425.0" prefHeight="25.0" prefWidth="193.0" style="-fx-background-radius: 100px;" />
+            <Button fx:id="button_login" layoutX="455.0" layoutY="531.0" mnemonicParsing="false" onAction="#handle_login" prefHeight="25.0" prefWidth="259.0" style="-fx-background-radius: 100px;" text="Sign In" />
       </children>
     </AnchorPane>
   </children>

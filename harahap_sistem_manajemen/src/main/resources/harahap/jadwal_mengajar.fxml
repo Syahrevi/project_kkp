@@ -12,40 +12,49 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1250.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.jadwal_mengajar_controller">
    <children>
-      <VBox layoutX="14.0" layoutY="38.0" prefHeight="206.0" prefWidth="132.0">
-         <children>
-            <Button fx:id="button_jadwal_mengajar1" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="25.0" prefWidth="268.0" text="JADWAL MENGAJAR" />
-            <Button fx:id="button_laporan_gaji" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="10.0" prefWidth="132.0" text="LAPORAN GAJI" />
-            <Button fx:id="button_absensi" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="25.0" prefWidth="134.0" text="ABSENSI" />
-         </children>
-      </VBox>
-      <VBox layoutX="14.0" layoutY="466.0" prefHeight="267.0" prefWidth="132.0">
-         <children>
-            <Button fx:id="button_crud_pelatih" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="25.0" prefWidth="148.0" text="INPUT PELATIH" />
-            <Button fx:id="button_crud_siswa" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="25.0" prefWidth="145.0" text="INPUT SISWA" />
-            <Button fx:id="button_crud_tim_siswa" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="25.0" prefWidth="140.0" text="NAMA CABANG" />
-         </children>
-      </VBox>
-      <TableView fx:id="table_jadwal_mengajar" layoutX="157.0" layoutY="14.0" prefHeight="772.0" prefWidth="791.0">
+      <ImageView fitHeight="800.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/background.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="56.0" fitWidth="900.0" layoutX="338.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Rectangle%202.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="85.0" fitWidth="300.0" layoutX="22.0" layoutY="35.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Logo.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="button_jadwal_mengajar1" layoutX="355.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="35.0" prefWidth="132.0" style="-fx-background-radius: 100px;" text="JADWAL MENGAJAR" />
+      <Button fx:id="button_laporan_gaji" layoutX="1111.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="LAPORAN GAJI" />
+      <Button fx:id="button_absensi" layoutX="500.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_absensi" prefHeight="35.0" prefWidth="65.0" style="-fx-background-radius: 100px;" text="ABSENSI" />
+      <Button fx:id="button_crud_pelatih" layoutX="815.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="INPUT PELATIH" />
+      <Button fx:id="button_crud_siswa" layoutX="580.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="35.0" prefWidth="90.0" style="-fx-background-radius: 100px;" text="INPUT SISWA" />
+      <Button fx:id="button_crud_tim_siswa" layoutX="685.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="35.0" prefWidth="113.0" style="-fx-background-radius: 100px;" text="INPUT CABANG" />
+      <TableView fx:id="table_jadwal_mengajar" layoutX="30.0" layoutY="148.0" prefHeight="625.0" prefWidth="855.0" style="-fx-opacity: 0.8;">
         <columns>
           <TableColumn fx:id="col_id_jadwal" prefWidth="60.0" text="ID jadwal" />
-            <TableColumn fx:id="col_nama_pelatih" prefWidth="48.0" text="Pelatih" />
-            <TableColumn fx:id="col_nama_tim" prefWidth="83.0" text="Cabang" />
-            <TableColumn fx:id="col_nama_kelas" prefWidth="108.0" text="Kelas" />
-            <TableColumn fx:id="col_tanggal" prefWidth="103.0" text="Tanggal" />
-          <TableColumn fx:id="col_waktu_mulai" prefWidth="92.0" text="Waktu Mulai" />
-            <TableColumn fx:id="col_waktu_selesai" prefWidth="93.0" text="Waktu Selesai" />
-            <TableColumn fx:id="col_kehadiran_pelatih" onEditStart="#editKehadiranPelatih" prefWidth="105.0" text="Kehadiran Pelatih" />
-            <TableColumn fx:id="col_kehadiran_siswa" onEditStart="#editKehadiranSiswa" prefWidth="98.0" text="Kehadiran Siswa" />
+            <TableColumn fx:id="col_nama_pelatih" prefWidth="61.0" text="Pelatih" />
+            <TableColumn fx:id="col_nama_tim" minWidth="0.0" prefWidth="63.0" text="Cabang" />
+            <TableColumn fx:id="col_nama_kelas" prefWidth="160.0" text="Kelas" />
+            <TableColumn fx:id="col_tanggal" prefWidth="106.0" text="Tanggal" />
+          <TableColumn fx:id="col_waktu_mulai" text="Waktu Mulai" />
+            <TableColumn fx:id="col_waktu_selesai" prefWidth="90.0" text="Waktu Selesai" />
+            <TableColumn fx:id="col_kehadiran_pelatih" onEditStart="#editKehadiranPelatih" prefWidth="119.0" text="Kehadiran Pelatih" />
+            <TableColumn fx:id="col_kehadiran_siswa" onEditStart="#editKehadiranSiswa" prefWidth="115.0" text="Kehadiran Siswa" />
         </columns>
       </TableView>
-      <Accordion layoutX="950.0" layoutY="14.0">
+      <Accordion layoutX="892.0" layoutY="145.0">
         <panes>
             <TitledPane maxHeight="560.0" prefHeight="560.0" prefWidth="316.0" text="Input Jadwal">
               <content>
@@ -56,8 +65,8 @@
                         <Label layoutX="14.0" layoutY="64.0" prefHeight="17.0" prefWidth="71.0" text="Nama Siswa" />
                         <ComboBox fx:id="combobox_input_nama_tim" layoutX="14.0" layoutY="81.0" prefHeight="25.0" prefWidth="148.0" />
                         
-                        <Button fx:id="button_input_submit" layoutX="14.0" layoutY="495.0" mnemonicParsing="false" onAction="#submitJadwalForm" text="SUBMIT" />
-                        <Button fx:id="button_input_reset" layoutX="78.0" layoutY="495.0" mnemonicParsing="false" onAction="#resetJadwalForm" text="RESET" />
+                              <Button fx:id="button_input_submit" layoutX="16.0" layoutY="497.0" mnemonicParsing="false" onAction="#submitJadwalForm" text="SUBMIT" />
+                        <Button fx:id="button_input_reset" layoutX="80.0" layoutY="497.0" mnemonicParsing="false" onAction="#resetJadwalForm" text="RESET" />
                         <Label layoutX="15.0" layoutY="155.0" text="Jam Masuk" />
                         <Label layoutX="96.0" layoutY="158.0" text="Menit Masuk" />
                         <Label layoutX="96.0" layoutY="197.0" text="Menit Selesai" />
@@ -127,10 +136,10 @@
                               </Button>
                            </children>
                         </VBox>
-                        <Button fx:id="button_input_edit" layoutX="135.0" layoutY="495.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
-                        <Button fx:id="button_input_delete" layoutX="181.0" layoutY="495.0" mnemonicParsing="false" onAction="#delete" text="DELETE" />
+                        <Button fx:id="button_input_edit" layoutX="137.0" layoutY="497.0" mnemonicParsing="false" onAction="#edit" text="EDIT" />
+                        <Button fx:id="button_input_delete" layoutX="183.0" layoutY="497.0" mnemonicParsing="false" onAction="#delete" text="DELETE" />
                         <ComboBox fx:id="combobox_kelas" layoutX="167.0" layoutY="33.0" prefHeight="25.0" prefWidth="140.0" />
-                        <Label layoutX="167.0" layoutY="15.0" text="Kelas" />
+                        <Label layoutX="169.0" layoutY="15.0" text="Kelas" />
                      </children>
                   </AnchorPane>
               </content>

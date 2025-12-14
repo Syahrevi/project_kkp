@@ -24,7 +24,8 @@ public class App extends Application {
         stage.show();
         stage.getIcons().add(new Image("file:src/main/resources/harahap/images/icon.png"));
         stage.setTitle("Sistem Manajemen Harahap");
-
+        stage.setWidth(1250);
+        stage.setHeight(800);
     }
 
     static void setRoot(String fxml) throws IOException {
