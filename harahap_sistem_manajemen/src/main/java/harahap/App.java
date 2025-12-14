@@ -26,6 +26,7 @@ public class App extends Application {
         stage.setTitle("Sistem Manajemen Harahap");
         stage.setWidth(1250);
         stage.setHeight(800);
+        stage.setResizable(false);
     }
 
     static void setRoot(String fxml) throws IOException {
