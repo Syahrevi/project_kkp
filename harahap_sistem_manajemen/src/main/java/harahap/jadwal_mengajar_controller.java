@@ -567,8 +567,8 @@ private void loadTimData() {
                    + "JOIN pelatih p ON p.id_pelatih = j.id_pelatih "
                    + "LEFT JOIN tim_siswa t ON t.id_tim = j.id_tim "
                    + "LEFT JOIN kelas k ON k.id_kelas = j.id_kelas "
-                   + "WHERE j.tanggal >= date('now') "
-                   + "ORDER BY j.tanggal ASC";
+                //    + "WHERE j.tanggal >= date('now') "
+                   + "ORDER BY j.tanggal desc";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              ResultSet rs = conn.createStatement().executeQuery(sql)) {
@@ -825,7 +825,7 @@ private void loadTimData() {
                    + "JOIN pelatih p ON p.id_pelatih = j.id_pelatih "
                    + "LEFT JOIN tim_siswa t ON t.id_tim = j.id_tim "
                    + "LEFT JOIN kelas k ON k.id_kelas = j.id_kelas "
-                   + "ORDER BY j.tanggal ASC";
+                   + "ORDER BY j.tanggal Desc";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              ResultSet rs = conn.createStatement().executeQuery(sql)) {
