@@ -453,46 +453,46 @@ public class jadwal_mengajar_controller implements Initializable {
         }
     }
 
-// Load siswa list into siswaDataList (and optionally a combobox if you add one)
-private void loadSiswaData() {
-    siswaDataList.clear();
-    String sql = "SELECT s.id_siswa, s.nama_siswa, t.nama_tim "
-               + "FROM siswa s "
-               + "LEFT JOIN tim_siswa t ON s.id_tim = t.id_tim "
-               + "ORDER BY s.nama_siswa ASC";
-    try (Connection conn = DriverManager.getConnection(DB_URL);
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            siswaDataList.add(new SiswaData(
-                rs.getInt("id_siswa"),
-                rs.getString("nama_siswa"),
-                rs.getString("nama_tim") // may be null
-            ));
+    // Load siswa list into siswaDataList (and optionally a combobox if you add one)
+    private void loadSiswaData() {
+        siswaDataList.clear();
+        String sql = "SELECT s.id_siswa, s.nama_siswa, t.nama_tim "
+                + "FROM siswa s "
+                + "LEFT JOIN tim_siswa t ON s.id_tim = t.id_tim "
+                + "ORDER BY s.nama_siswa ASC";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                siswaDataList.add(new SiswaData(
+                    rs.getInt("id_siswa"),
+                    rs.getString("nama_siswa"),
+                    rs.getString("nama_tim") // may be null
+                ));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-    } catch (SQLException ex) {
-        ex.printStackTrace();
+        // If you later add a combobox for siswa, set its items here.
     }
-    // If you later add a combobox for siswa, set its items here.
-}
 
-private void loadTimData() {
-    timDataList.clear();
-    String sql = "SELECT id_tim, nama_tim FROM tim_siswa ORDER BY nama_tim ASC";
-    try (Connection conn = DriverManager.getConnection(DB_URL);
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            timDataList.add(new TimData(
-                rs.getInt("id_tim"),
-                rs.getString("nama_tim")
-            ));
+    private void loadTimData() {
+        timDataList.clear();
+        String sql = "SELECT id_tim, nama_tim FROM tim_siswa ORDER BY nama_tim ASC";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                timDataList.add(new TimData(
+                    rs.getInt("id_tim"),
+                    rs.getString("nama_tim")
+                ));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-    } catch (SQLException ex) {
-        ex.printStackTrace();
+        if (combobox_input_nama_tim != null) combobox_input_nama_tim.setItems(timDataList);
     }
-    if (combobox_input_nama_tim != null) combobox_input_nama_tim.setItems(timDataList);
-}
 
 
     private void loadKelasData() {

@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>harahap</groupId>
-  <artifactId>harahap_sistem_informasi</artifactId>
+  <artifactId>harahap_sistem_manajemen</artifactId>
   <version>1</version>
 
   <properties>
@@ -48,6 +48,8 @@
       <version>3.49.1.0</version>
     </dependency>
 
+    
+
     <!-- JavaFX (match your runtime JDK/JavaFX distribution if needed) -->
     <dependency>
       <groupId>org.openjfx</groupId>
@@ -84,6 +86,21 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>harahap.App</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>

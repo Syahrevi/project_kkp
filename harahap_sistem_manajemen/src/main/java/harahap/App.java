@@ -22,7 +22,7 @@ public class App extends Application {
         scene = new Scene(loadFXML("login_page"));
         stage.setScene(scene);
         stage.show();
-        stage.getIcons().add(new Image("file:src/main/resources/harahap/images/icon.png"));
+        stage.getIcons().add(new Image("file:icon.png"));
         stage.setTitle("Sistem Manajemen Harahap");
         stage.setWidth(1250);
         stage.setHeight(800);
@@ -42,10 +42,7 @@ public class App extends Application {
         launch();
     }
 
-    public void initialize(URL arg0, ResourceBundle arg1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'initialize'");
-        
+    public void initialize(URL arg0, ResourceBundle arg1) { 
     }
 
 }
