@@ -19,7 +19,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("login_page"));
+        scene = new Scene(loadFXML("laporan_gaji"));
         stage.setScene(scene);
         stage.show();
         stage.getIcons().add(new Image("file:icon.png"));

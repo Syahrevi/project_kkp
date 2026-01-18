@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,10 +17,22 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,7 +65,7 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
     // Tab Hari
     @FXML private Tab tab_hari;
     @FXML private TableView<laporan_gaji1> table_jadwal_laporan1;
-    @FXML private TableColumn<laporan_gaji1, Integer> col_id_jadwal1;
+    @FXML private TableColumn<laporan_gaji1, Integer> col_id_jadwal1;   
     @FXML private TableColumn<laporan_gaji1, String> col_nama_pelatih1;
     @FXML private TableColumn<laporan_gaji1, Integer> col_total_jam1;
     @FXML private TableColumn<laporan_gaji1, Integer> col_total_gaji1;
@@ -123,6 +136,18 @@ public class laporan_gaji_controller implements javafx.fxml.Initializable {
     public void switch_to_laporan_gaji(ActionEvent e) throws Exception {
         scene_switcher switcher = new scene_switcher();
         switcher.switch_to_laporan_gaji(e);
+    }
+    public void switch_to_laporan_absensi(ActionEvent e) throws Exception {
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_laporan_absensi(e);
+    }
+    public void switch_to_laporan_grade(ActionEvent e) throws Exception {
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_laporan_grade(e);
+    }
+    public void switch_to_laporan_pengecualian(ActionEvent e) throws Exception {
+        scene_switcher switcher = new scene_switcher();
+        switcher.switch_to_laporan_pengecualian(e);
     }
 
     @Override
@@ -1002,17 +1027,204 @@ private void applyFilterBulanIni() {
 
                 // Sheet 1: Laporan (Hari / Bulan / Tahun)
                 XSSFSheet laporanSheet = workbook.createSheet("Laporan");
-                writeTableToSheet(laporanTable, laporanSheet);
+                writeTableToSheetWithHeader(laporanTable, laporanSheet, workbook);
 
                 // Sheet 2: Gaji Per Jadwal
                 XSSFSheet gajiSheet = workbook.createSheet("Gaji Per Jadwal");
-                writeTableToSheet(gajiPerJadwalTable, gajiSheet);
+                writeTableToSheetWithHeader(gajiPerJadwalTable, gajiSheet, workbook);
 
                 try (FileOutputStream fos = new FileOutputStream(file)) {
                     workbook.write(fos);
                 }
             }
         }
+
+        private void writeTableToSheetWithHeader(TableView<?> table, XSSFSheet sheet, XSSFWorkbook workbook) throws Exception {
+            // Add header section
+            int currentRow = addCompanyHeader(sheet, workbook);
+
+            // Add some spacing
+            currentRow += 2;
+
+            // Table header row
+            Row headerRow = sheet.createRow(currentRow);
+            int colCount = table.getColumns().size();
+
+            XSSFCellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            headerStyle.setFillPattern(org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+
+            for (int c = 0; c < colCount; c++) {
+                TableColumn<?, ?> col = table.getColumns().get(c);
+                Cell cell = headerRow.createCell(c);
+                cell.setCellValue(col.getText() != null ? col.getText() : "");
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Data rows
+            currentRow++;
+            for (int r = 0; r < table.getItems().size(); r++) {
+                Row row = sheet.createRow(currentRow++);
+                for (int c = 0; c < colCount; c++) {
+                    Object value = table.getColumns().get(c).getCellData(r);
+                    Cell cell = row.createCell(c);
+
+                    if (value == null) {
+                        cell.setCellValue("");
+                    } else if (value instanceof Number) {
+                        cell.setCellValue(((Number) value).doubleValue());
+                    } else {
+                        cell.setCellValue(value.toString());
+                    }
+                }
+            }
+
+            // // Auto-size columns
+            // for (int c = 0; c < colCount; c++) {
+            //     sheet.autoSizeColumn(c);
+            // }
+
+            // ===== FOOTER SECTION =====
+            // Position footer at bottom of A4 page (approximately row 50)
+            int footerRow = 38;
+            
+            // Add location and date
+            Row footerDateRow = sheet.createRow(footerRow++);
+            Cell footerDateCell = footerDateRow.createCell(8); // Place in last column
+            XSSFCellStyle dateStyle = workbook.createCellStyle();
+            dateStyle.setAlignment(HorizontalAlignment.RIGHT);
+            footerDateCell.setCellStyle(dateStyle);
+            String footerDate = getIndonesianDate();
+            footerDateCell.setCellValue(footerDate);
+            
+            // Empty rows for signature space
+            footerRow += 2;
+            
+            // Add signature line for company owner
+            Row signatureRow = sheet.createRow(footerRow++);
+            Cell signatureCell = signatureRow.createCell(8); // Place in last column
+            XSSFCellStyle signatureStyle = workbook.createCellStyle();
+            signatureStyle.setAlignment(HorizontalAlignment.RIGHT);
+            signatureCell.setCellStyle(signatureStyle);
+            
+            // Owner name placeholder
+            Row ownerRow = sheet.createRow(footerRow++);
+            Cell ownerCell = ownerRow.createCell(8); // Place in last column
+            XSSFCellStyle ownerStyle = workbook.createCellStyle();
+            ownerStyle.setAlignment(HorizontalAlignment.RIGHT);
+            ownerCell.setCellStyle(ownerStyle);
+            // TODO: Add company owner name here
+            ownerCell.setCellValue("Nama Pemilik Perusahaan");
+        }
+
+        private int addCompanyHeader(XSSFSheet sheet, XSSFWorkbook workbook) throws Exception {
+            // Create blue header background for rows 0-3
+            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+            headerCellStyle.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 0x1F, (byte) 0x4E, (byte) 0x78}, null)); // Dark blue
+            headerCellStyle.setFillPattern(org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND);
+            headerCellStyle.setAlignment(HorizontalAlignment.LEFT);
+            headerCellStyle.setVerticalAlignment(VerticalAlignment.TOP);
+
+            XSSFFont whiteFont = workbook.createFont();
+            whiteFont.setColor(IndexedColors.WHITE.getIndex());
+            whiteFont.setBold(true);
+            whiteFont.setFontHeightInPoints((short) 11);
+            headerCellStyle.setFont(whiteFont);
+
+            // Row 0: Company name (left side with image, right side with details)
+            Row row0 = sheet.createRow(0);
+            // row0.setHeightInPoints(60);
+
+            // Merge cells for image area (columns 0-1)
+            sheet.addMergedRegion(new CellRangeAddress(0, 3, 0, 1));
+            Cell imageCell = row0.createCell(0);
+            imageCell.setCellStyle(headerCellStyle);
+
+            // Try to add image
+            try {
+                String imagePath = "src/main/resources/harahap/images/icon.png";
+                java.io.File imageFile = new java.io.File(imagePath);
+                if (imageFile.exists()) {
+                    byte[] imageBytes = java.nio.file.Files.readAllBytes(imageFile.toPath());
+                    int pictureIndex = workbook.addPicture(imageBytes, XSSFWorkbook.PICTURE_TYPE_PNG);
+                    
+                    Drawing<?> drawing = sheet.createDrawingPatriarch();
+                    ClientAnchor anchor = workbook.getCreationHelper().createClientAnchor();
+                    anchor.setCol1(0);
+                    anchor.setRow1(0);
+                    anchor.setCol2(2);
+                    anchor.setRow2(4);
+                    Picture picture = drawing.createPicture(anchor, pictureIndex);
+                    picture.resize(1);
+                }
+            } catch (Exception e) {
+                // Image not found or error adding it - continue without image
+                System.err.println("Warning: Could not load image: " + e.getMessage());
+            }
+
+            // Merge cells for company details (columns 2-5)
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 2, 8));
+            Cell companyNameCell = row0.createCell(2);
+            companyNameCell.setCellValue("PT HARAHAP SWIMMING SCHOOL");
+            companyNameCell.setCellStyle(headerCellStyle);
+            XSSFFont companyNameFont = workbook.createFont();
+            companyNameFont.setColor(IndexedColors.WHITE.getIndex());
+            companyNameFont.setBold(true);
+            companyNameFont.setFontHeightInPoints((short) 14);
+            XSSFCellStyle companyNameStyle = workbook.createCellStyle();
+            companyNameStyle.setFont(companyNameFont);
+            companyNameStyle.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 0x1F, (byte) 0x4E, (byte) 0x78}, null));
+            companyNameStyle.setFillPattern(org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND);
+            companyNameStyle.setAlignment(HorizontalAlignment.LEFT);
+            companyNameStyle.setVerticalAlignment(VerticalAlignment.TOP);
+            companyNameCell.setCellStyle(companyNameStyle);
+
+            // Row 1: Address line 1
+            Row row1 = sheet.createRow(1);
+            row1.setHeightInPoints(15);
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 2, 8));
+            Cell address1Cell = row1.createCell(2);
+            address1Cell.setCellValue("RT.12/RW.3, Srengseng Sawah, Jagakarsa");
+            address1Cell.setCellStyle(headerCellStyle);
+
+            // Row 2: Address line 2
+            Row row2 = sheet.createRow(2);
+            row2.setHeightInPoints(15);
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 8));
+            Cell address2Cell = row2.createCell(2);
+            address2Cell.setCellValue("Kota Jakarta Selatan, DKI Jakarta 12630");
+            address2Cell.setCellStyle(headerCellStyle);
+
+            // Row 3: Phone
+            Row row3 = sheet.createRow(3);
+            row3.setHeightInPoints(15);
+            sheet.addMergedRegion(new CellRangeAddress(3, 3, 2, 8));
+            Cell phoneCell = row3.createCell(2);
+            phoneCell.setCellValue("Telp: 088999889908");
+            phoneCell.setCellStyle(headerCellStyle);
+
+            // Fill blue background for all header rows (columns 0-5)
+            for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
+                Row row = sheet.getRow(rowIdx);
+                if (row == null) row = sheet.createRow(rowIdx);
+                for (int colIdx = 0; colIdx < 6; colIdx++) {
+                    Cell cell = row.getCell(colIdx);
+                    if (cell == null) cell = row.createCell(colIdx);
+                    if (cell.getCellStyle() == null) {
+                        cell.setCellStyle(headerCellStyle);
+                    }
+                }
+            }
+
+            return 4; // Return the next available row index
+        }
+
         private void writeTableToSheet(TableView<?> table, XSSFSheet sheet) {
             // Header row
             Row headerRow = sheet.createRow(0);
@@ -1042,14 +1254,32 @@ private void applyFilterBulanIni() {
                 }
             }
 
-            // Auto-size columns
-            for (int c = 0; c < colCount; c++) {
-                sheet.autoSizeColumn(c);
-            }
+            // // Auto-size columns
+            // for (int c = 0; c < colCount; c++) {
+            //     sheet.autoSizeColumn(c);
+            // }
         }
 
-    // Placeholder for print action (if you want to implement printing)
-    public void printLaporanGaji(ActionEvent e) {
-        // implement if needed
+    private String getIndonesianDate() {
+        LocalDate today = LocalDate.now();
+        
+        String[] months = {
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        };
+        
+        String[] days = {
+            "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"
+        };
+        
+        DayOfWeek dayOfWeek = today.getDayOfWeek();
+        int dayIndex = dayOfWeek.getValue() % 7; // 0 = Monday, convert to 0-6 where 0 is Monday
+        String dayName = days[dayIndex];
+        
+        int day = today.getDayOfMonth();
+        String month = months[today.getMonthValue() - 1];
+        int year = today.getYear();
+        
+        return "Jakarta, " + dayName + ", " + day + " " + month + " " + year;
     }
 }

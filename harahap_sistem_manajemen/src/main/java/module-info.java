@@ -6,8 +6,7 @@ module harahap {
     requires org.apache.poi.ooxml;
     requires org.apache.commons.lang3;
     requires org.apache.poi.ooxml.schemas;
-    
-
+    requires java.desktop;
     opens harahap to javafx.fxml;
     exports harahap;
 }

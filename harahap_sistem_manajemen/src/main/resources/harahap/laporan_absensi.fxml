@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1250.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="harahap.laporan_absensi_controller">
+   <children>
+      <ImageView fitHeight="800.0" fitWidth="1280.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/background.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="56.0" fitWidth="900.0" layoutX="338.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Rectangle%202.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="85.0" fitWidth="300.0" layoutX="22.0" layoutY="35.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/Logo.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="button_jadwal_mengajar" layoutX="348.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_jadwal_mengajar" prefHeight="35.0" prefWidth="126.0" style="-fx-background-radius: 100px;" text="JADWAL MENGAJAR" />
+      <Button fx:id="button_crud_pelatih" layoutX="674.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_pelatih" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="INPUT PELATIH" />
+      <Button fx:id="button_crud_siswa" layoutX="474.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_siswa" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="INPUT SISWA" />
+      <Button fx:id="button_crud_tim_siswa" layoutX="571.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_crud_tim_siswa" prefHeight="35.0" prefWidth="103.0" style="-fx-background-radius: 100px;" text="INPUT CABANG" />
+      <VBox layoutX="24.0" layoutY="476.0" prefHeight="267.0" prefWidth="132.0" />
+      <Accordion layoutX="508.0" layoutY="14.0" />
+      <Button fx:id="button_laporan_gaji1" layoutX="1100.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_laporan_gaji" prefHeight="35.0" prefWidth="97.0" style="-fx-background-radius: 100px;" text="LAPORAN GAJI" />
+      <Button fx:id="button_laporan_gaji1" layoutX="997.0" layoutY="56.0" mnemonicParsing="false" onAction="#switch_to_laporan_pengecualian" prefHeight="42.0" prefWidth="103.0" style="-fx-background-radius: 100px;" text="LAPORAN PENGECUALIAN" textAlignment="CENTER" wrapText="true" />
+      <Button fx:id="button_laporan_gaji2" layoutX="878.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_laporan_grade" prefHeight="35.0" prefWidth="119.0" style="-fx-background-radius: 100px;" text="LAPORAN GRADE" textAlignment="CENTER" wrapText="true" />
+      <Button fx:id="button_laporan_gaji3" layoutX="771.0" layoutY="58.0" mnemonicParsing="false" onAction="#switch_to_laporan_absensi" prefHeight="35.0" prefWidth="109.0" style="-fx-background-radius: 100px;" text="LAPORAN ABSEN" textAlignment="CENTER" wrapText="true" />
+      <TableView fx:id="absensi" layoutX="184.0" layoutY="116.0" prefHeight="534.0" prefWidth="637.0">
+         <columns>
+            <TableColumn fx:id="id_pelatih" prefWidth="74.0" text="ID Pelatih" />
+            <TableColumn fx:id="nama_pelatih" prefWidth="103.0" text="Nama Pelatih" />
+            <TableColumn fx:id="Jumlah_Sesi_Yang_Dijadwalkan" minWidth="0.0" prefWidth="188.0" text="Jumlah Sesi Yang Dijadwalkan" />
+            <TableColumn fx:id="persen_hadir" prefWidth="125.0" text="Persen Hadir" />
+            <TableColumn fx:id="total_jam" prefWidth="75.0" text="Total Jam" />
+         </columns>
+      </TableView>
+      <VBox layoutX="827.0" layoutY="116.0" prefHeight="534.0" prefWidth="132.0">
+         <children>
+            <Label text="Dari Tanggal" />
+            <DatePicker fx:id="dari_tanggal" prefHeight="25.0" prefWidth="281.0" />
+            <Label text="Sampai Tanggal" />
+            <DatePicker fx:id="sampai_tanggal" prefHeight="25.0" prefWidth="281.0" />
+            <Button fx:id="tanggal_sekarang" mnemonicParsing="false" prefHeight="25.0" prefWidth="134.0" style="-fx-background-radius: 100px;" text="Tanggal Sekarang" />
+            <Button fx:id="reset_tanggal" mnemonicParsing="false" prefHeight="25.0" prefWidth="136.0" style="-fx-background-radius: 100px;" text="Reset" />
+            <Button fx:id="print_laporan" mnemonicParsing="false" onAction="#handlePrintLaporan" prefHeight="25.0" prefWidth="136.0" style="-fx-background-radius: 100px;" text="Print Laporan" textAlignment="CENTER" />
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

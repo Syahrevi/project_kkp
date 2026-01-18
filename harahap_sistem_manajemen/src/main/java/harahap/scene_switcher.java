@@ -15,13 +15,19 @@ public class scene_switcher {
     public void switch_to_crud_tim_siswa(ActionEvent event)throws Exception{
         App.setRoot("crud_tim_siswa");
     }
+    public void switch_to_crud_absensi(ActionEvent event)throws Exception{
+        App.setRoot("crud_absensi");
+    }
     public void switch_to_laporan_gaji(ActionEvent event)throws Exception{
         App.setRoot("laporan_gaji");
     }
     public void switch_to_laporan_absensi(ActionEvent event)throws Exception{
         App.setRoot("laporan_absensi");
     }
-    public void switch_to_crud_absensi(ActionEvent event)throws Exception{
-        App.setRoot("crud_absensi");
+    public void switch_to_laporan_grade(ActionEvent event)throws Exception{
+        App.setRoot("laporan_grade");
+    }
+    public void switch_to_laporan_pengecualian(ActionEvent event)throws Exception{
+        App.setRoot("laporan_pengecualian");
     }
 }
