@@ -35,11 +35,11 @@
     </dependency>
 
     <!-- OOXML schemas (lightweight compatible) -->
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>ooxml-schemas</artifactId>
       <version>1.4</version>
-    </dependency>
+    </dependency> -->
 
     <!-- SQLite JDBC -->
     <dependency>
@@ -118,6 +118,8 @@
                 <artifactSet>
                   <excludes>
                     <exclude>org.openjfx:*</exclude>
+                    <exclude>org/openxmlformats/**</exclude> 
+                    <exclude>org/apache/xmlbeans/**</exclude>
                   </excludes>
                 </artifactSet>
                 <transformers>

@@ -320,23 +320,26 @@ public class laporan_absensi_controller implements javafx.fxml.Initializable {
             headerCell.setCellValue("PT HARAHAP SWIMMING SCHOOL\nRT.12/RW.3, Srengseng Sawah, Jagakarsa, Kota Jakarta Selatan, DKI Jakarta 12630\nTelp: 088999889908");
             
             // Add company logo/image on the left
+            // Try to add image
             try {
-                URL iconUrl = getClass().getResource("/harahap/images/icon.png");
-                if (iconUrl != null) {
-                    File imageFile = new File(iconUrl.toURI());
-                    if (imageFile.exists()) {
-                        byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
-                        int pictureIndex = workbook.addPicture(imageBytes, XSSFWorkbook.PICTURE_TYPE_PNG);
-                        
-                        Drawing<?> drawing = sheet.createDrawingPatriarch();
-                        // Position image in columns 0-1, rows 0-4 (top-left of header)
-                        ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 0, 1, 5);
-                        Picture picture = drawing.createPicture(anchor, pictureIndex);
-                        picture.resize(1.0);
-                    }
+                String imagePath = "icon.png";
+                java.io.File imageFile = new java.io.File(imagePath);
+                if (imageFile.exists()) {
+                    byte[] imageBytes = java.nio.file.Files.readAllBytes(imageFile.toPath());
+                    int pictureIndex = workbook.addPicture(imageBytes, XSSFWorkbook.PICTURE_TYPE_PNG);
+                    
+                    Drawing<?> drawing = sheet.createDrawingPatriarch();
+                    ClientAnchor anchor = workbook.getCreationHelper().createClientAnchor();
+                    anchor.setCol1(0);
+                    anchor.setRow1(0);
+                    anchor.setCol2(1);
+                    anchor.setRow2(5);
+                    Picture picture = drawing.createPicture(anchor, pictureIndex);
+                    picture.resize(1);
                 }
-            } catch (Exception ex) {
-                System.out.println("Could not load company logo: " + ex.getMessage());
+            } catch (Exception e) {
+                // Image not found or error adding it - continue without image
+                System.err.println("Warning: Could not load image: " + e.getMessage());
             }
             
             currentRow = 5;
@@ -356,7 +359,7 @@ public class laporan_absensi_controller implements javafx.fxml.Initializable {
             titleStyle.setAlignment(HorizontalAlignment.CENTER);
             titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             titleCell.setCellStyle(titleStyle);
-            titleCell.setCellValue("LAPORAN PENGECUALIAN GAJI");
+            titleCell.setCellValue("LAPORAN ABSENSI PELATIH");
             
             currentRow++; // Empty row
             

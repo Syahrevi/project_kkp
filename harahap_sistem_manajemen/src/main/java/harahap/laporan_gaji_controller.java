@@ -1148,7 +1148,7 @@ private void applyFilterBulanIni() {
 
             // Try to add image
             try {
-                String imagePath = "src/main/resources/harahap/images/icon.png";
+                String imagePath = "icon.png";
                 java.io.File imageFile = new java.io.File(imagePath);
                 if (imageFile.exists()) {
                     byte[] imageBytes = java.nio.file.Files.readAllBytes(imageFile.toPath());
